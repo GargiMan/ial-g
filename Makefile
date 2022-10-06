@@ -10,10 +10,10 @@ all: program program programRun packing
 
 
 libs/%.o: src/%.c
-	g++ $(CCFLAGS) -DDEBUG -c $< -o $@
+	gcc $(CCFLAGS) -DDEBUG -c $< -o $@
 
 program: $(OBJ_FILES) 
-	g++ $(CCFLAGS) -DDEBUG $^ -o program.exe
+	gcc $(CCFLAGS) -DDEBUG $^ -o program.exe
 
 libs/%.lib: libs/%.o
 	ar rcs ./$(basename $^).lib $^
