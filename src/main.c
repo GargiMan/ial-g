@@ -1,15 +1,13 @@
 /**
  * @file main.c
- * @author your name (you@domain.com)
- * @brief
- * @version 0.1
- * @date 2022-10-06
- *
- * @copyright Copyright (c) 2022
+ * @author All (replace)
+ * @brief Program reads unoriented graph from stdin and analyze it's properties
  *
  */
 #include <stdio.h>
-#include <stdlib.h>
+#include "../include/parser.h"
+#include "../include/graph.h"
+#include "../include/resources.h"
 
 /**
  * @brief
@@ -17,9 +15,14 @@
  * @param argc
  * @param argv
  * @return int
- */
-int main(int argc, char const *argv[])
-{
+ */ 
+int main() {
+
+    parse_data(stdin);
+
+    //graph_analyze_properties();
+
+    FREE_RESOURCES;
 
     return 0;
 }
