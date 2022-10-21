@@ -18,7 +18,7 @@ int main() {
 
     parse_data(stdin);
 
-    //graph_analyze_properties();
+    graph_analyze_properties();
 
     FREE_RESOURCES;
 

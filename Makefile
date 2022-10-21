@@ -1,4 +1,6 @@
-#Names....
+# Makefile IAL Project
+# All (replace)
+
 CCFLAGS := -g -Wall -Wextra -std=c17 -O2 -pedantic
 SRC_FILES := $(wildcard src/*.c)
 HEADER_FILES := $(wildcard include/*.h)
