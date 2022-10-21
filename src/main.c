@@ -4,10 +4,10 @@
  * @brief Main program function
  *
  */
-#include <stdio.h>
 #include "../include/parser.h"
 #include "../include/graph.h"
 #include "../include/resources.h"
+#include <stdio.h>
 
 /**
  * @brief Program reads unoriented graph from stdin and analyze it's properties
