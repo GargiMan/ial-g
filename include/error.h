@@ -8,14 +8,14 @@
 #define ERROR_H
 
 typedef enum errorCodes {
-    graphSyntaxError = 1,
-    graphNodeCountZeroError = 2,
-    graphNodeCountOverflowError = 3,
-    graphNodeNameDuplicationError = 4,
-    graphNodeNameNotFoundError = 5,
-    nodeEdgeLoopError = 6,
-    forbiddenOperationError = 98,
-    internalError = 99,
+    parserSyntaxError = 1,
+    parserNodeCountZeroError = 2,
+    parserNodeCountOverflowError = 3,
+    parserNodeNameLengthOverflowError = 4,
+    graphNodeNameDuplicationError = 5,
+    graphNodeNameNotFoundError = 6,
+    graphNodeEdgeLoopError = 7,
+    internalError = 99
 } errorCodes_t;
 
 void error_exit(errorCodes_t errcode, char* msg, ...);

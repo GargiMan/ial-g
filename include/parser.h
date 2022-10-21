@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 
+#define MAX_NODE_NAME_LENGTH 256
+
 void parse_data(FILE* stream);
 
 #endif // PARSER_H

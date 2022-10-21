@@ -1,7 +1,7 @@
 /**
  * @file main.c
  * @author All (replace)
- * @brief Program reads unoriented graph from stdin and analyze it's properties
+ * @brief Main program function
  *
  */
 #include <stdio.h>
@@ -10,11 +10,9 @@
 #include "../include/resources.h"
 
 /**
- * @brief
- *
- * @param argc
- * @param argv
- * @return int
+ * @brief Program reads unoriented graph from stdin and analyze it's properties
+ * 
+ * @return int exit code
  */ 
 int main() {
 

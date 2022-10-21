@@ -43,9 +43,6 @@ void* alloc(size_t n, size_t size) {
 }
 
 void graph_init() {
-    if (graph) {
-        error_exit(forbiddenOperationError, "Graph already initialized\n");
-    }
     graph = (graph_t*)alloc(1, sizeof(graph_t));
     graph->node_count = 0;
 }
@@ -61,7 +58,7 @@ void graph_destroy() {
 
 void graph_create_node(char* nodeName) {
     if (graph->node_count >= MAX_NODE_COUNT) {
-        error_exit(graphNodeCountOverflowError, "Node limit reached (%i)\n", MAX_NODE_COUNT);
+        error_exit(parserNodeCountOverflowError, "Node limit reached (%i)\n", MAX_NODE_COUNT);
     }
     for (int i = 0; i < graph->node_count; i++) {
         if (strcmp(graph->nodes[i]->name, nodeName) == 0) {
@@ -88,7 +85,7 @@ node_t* graph_get_node(char* nodeName) {
 
 void graph_create_edge(char* nodeName, char* node2Name) {
     if (strcmp(nodeName, node2Name) == 0) {
-        error_exit(nodeEdgeLoopError, "Node '%s' cannot have an edge to itself\n", nodeName);
+        error_exit(graphNodeEdgeLoopError, "Node '%s' cannot have an edge to itself\n", nodeName);
     }
     node_t* node = graph_get_node(nodeName);
     node_t* node2 = graph_get_node(node2Name);
