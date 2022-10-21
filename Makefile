@@ -1,30 +1,24 @@
-#Names....
-CCFLAGS := -Wall -Wextra -std=c17 -O2 -pedantic
+# Makefile IAL Project
+# All (replace)
+
+CCFLAGS := -g -Wall -Wextra -std=c17 -O2 -pedantic
 SRC_FILES := $(wildcard src/*.c)
 HEADER_FILES := $(wildcard include/*.h)
 OBJ_FILES := $(patsubst src/%.c,libs/%.o,$(SRC_FILES))
-LIB_FILES := $(patsubst libs/%.o,libs/%.lib,$(OBJ_FILES))
 
-all: program program programRun packing
-.PHONY: all
+.PHONY: all program run clean
 
+all: program run clean
 
 libs/%.o: src/%.c
 	gcc $(CCFLAGS) -DDEBUG -c $< -o $@
 
-program: $(OBJ_FILES) 
-	gcc $(CCFLAGS) -DDEBUG $^ -o program.exe
+program: $(OBJ_FILES)
+	gcc $(CCFLAGS) -DDEBUG $^ -o main
 
-libs/%.lib: libs/%.o
-	ar rcs ./$(basename $^).lib $^
-	
-packing: $(LIB_FILES)
-	del .\libs\*.o
-	del .\libs\main.lib
+run:
+	./main
 
-programRun:
-	.\program.exe
-
-
-
-
+clean:
+	rm -f main
+	rm -f libs/*.o
