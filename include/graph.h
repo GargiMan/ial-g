@@ -7,6 +7,10 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include <stdlib.h>
+#include <string.h>
+#include "error.h"
+
 #define MAX_NODE_COUNT 256
 
 void graph_init();

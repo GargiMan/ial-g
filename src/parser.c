@@ -5,10 +5,6 @@
  */
 
 #include "../include/parser.h"
-#include "../include/graph.h"
-#include "../include/error.h"
-#include <stdbool.h>
-#include <string.h>
 
 FILE *stream_s;
 

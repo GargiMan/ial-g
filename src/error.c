@@ -5,10 +5,6 @@
  */
 
 #include "../include/error.h"
-#include "../include/resources.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
 
 /**
  * @brief Prints an error message, free used memory and exits the program.

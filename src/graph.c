@@ -5,9 +5,6 @@
  */
 
 #include "../include/graph.h"
-#include "../include/error.h"
-#include <stdlib.h>
-#include <string.h>
 
 #define MAX_EDGE_COUNT (MAX_NODE_COUNT - 1)
 

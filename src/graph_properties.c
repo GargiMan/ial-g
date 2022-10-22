@@ -8,6 +8,6 @@
 
 void graph_analyze_properties() {
 
-    //call single property function
+    //call property functions
 
 }

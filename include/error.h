@@ -7,6 +7,11 @@
 #ifndef ERROR_H
 #define ERROR_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include "resources.h"
+
 typedef enum errorCodes {
     parserSyntaxError = 1,
     parserNodeCountZeroError = 2,
