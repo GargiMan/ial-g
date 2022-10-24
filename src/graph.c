@@ -6,20 +6,6 @@
 
 #include "../include/graph.h"
 
-#define MAX_EDGE_COUNT (MAX_NODE_COUNT - 1)
-
-typedef struct node node_t;
-
-struct node {
-    char* name;
-    int edge_count;
-    node_t* edge_nodes[MAX_EDGE_COUNT];
-};
-
-typedef struct graph {
-    int node_count;
-    node_t* nodes[MAX_NODE_COUNT];
-} graph_t;
 
 graph_t* graph;
 
