@@ -9,7 +9,7 @@
 
 void graph_analyze_properties() {
 	printf("Node count: %d\n", graph_get_node_count());
-	printf("Edge count: \n");
+	printf("Edge count: %d\n", graph_get_edge_count());
     //call property functions
 
 }

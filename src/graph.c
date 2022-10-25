@@ -9,6 +9,8 @@
 
 graph_t* graph;
 
+int number_of_edges=0;
+
 /**
  * @brief Internal allocation function with zeroing and error checking.
  * In case of error exits the program with error code internalError.
@@ -80,10 +82,15 @@ void graph_create_edge(char* nodeName, char* node2Name) {
     }
     node->edge_nodes[node->edge_count++] = node2;
     node2->edge_nodes[node2->edge_count++] = node;
+    number_of_edges+=1;
 }
 
 int graph_get_node_count() {
     return graph->node_count;
+}
+
+int graph_get_edge_count() {
+    return number_of_edges;
 }
 
 int node_get_edge_count(char* nodeName) {
