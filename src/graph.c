@@ -6,22 +6,10 @@
 
 #include "../include/graph.h"
 
-#define MAX_EDGE_COUNT (MAX_NODE_COUNT - 1)
 
-typedef struct node node_t;
+graph_t* graph = NULL;
 
-struct node {
-    char* name;
-    int edge_count;
-    node_t* edge_nodes[MAX_EDGE_COUNT];
-};
-
-typedef struct graph {
-    int node_count;
-    node_t* nodes[MAX_NODE_COUNT];
-} graph_t;
-
-graph_t* graph;
+int number_of_edges=0;
 
 /**
  * @brief Internal allocation function with zeroing and error checking.
@@ -94,10 +82,15 @@ void graph_create_edge(char* nodeName, char* node2Name) {
     }
     node->edge_nodes[node->edge_count++] = node2;
     node2->edge_nodes[node2->edge_count++] = node;
+    number_of_edges+=1;
 }
 
 int graph_get_node_count() {
     return graph->node_count;
+}
+
+int graph_get_edge_count() {
+    return number_of_edges;
 }
 
 int node_get_edge_count(char* nodeName) {

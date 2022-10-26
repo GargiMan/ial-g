@@ -1,13 +1,37 @@
 /**
  * @file graph_properties.c
  * @author Marek Gergel (xgerge01) + All (replace)
- * @brief  
+ * @brief
  */
-
+#include <stdio.h>
 #include "../include/graph_properties.h"
+#include "../include/graph.h"
 
-void graph_analyze_properties() {
+/**
+ * @brief loops through all nodes, compares each vertex count, compares and selects the largest vertex.
+ * @warning if an error occurs, -1 is returned
+ * @return int Return the maximum degree (or valence) of the vertex of the graph
+ */
+int graph_max_numb_degree()
+{
+	int max = -1;
+	int node_count = graph_get_node_count();
+	for (int i = 0; i < node_count; i++)
+	{
+		int numb = graph_get_edge_count();
+		if (numb > max)
+		{
+			max = numb;
+		}
+	}
+	return max;
+}
 
-    //call property functions
+void graph_analyze_properties()
+{
+	printf("Node count: %d\n", graph_get_node_count());
+	printf("Edge count: %d\n", graph_get_edge_count());
 
+	printf("Maximum degree: %d\n", graph_max_numb_degree());
+	// call property functions
 }
