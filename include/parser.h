@@ -1,7 +1,12 @@
 /**
  * @file parser.h
  * @author Marek Gergel (xgerge01)
- * @brief  
+ * @brief
+ * @version 0.1
+ * @date 2022-10-26
+ *
+ * @copyright Copyright (c) 2022
+ *
  */
 
 #ifndef PARSER_H
@@ -15,6 +20,14 @@
 
 #define MAX_NODE_NAME_LENGTH 256
 
-void parse_data(FILE* stream);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
+    void parse_data(FILE *stream);
+
+#ifdef __cplusplus
+}
+#endif
 #endif // PARSER_H
