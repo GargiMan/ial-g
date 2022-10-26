@@ -29,6 +29,7 @@ typedef struct graph {
 
 extern struct node root_node_t;
 extern struct graph root_graph_t;
+extern graph_t *graph; //Make graph static
 
 void graph_init();
 void graph_destroy();
