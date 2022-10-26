@@ -1,7 +1,12 @@
 /**
  * @file graph_properties.c
- * @author Marek Gergel (xgerge01) + All (replace)
- * @brief
+ * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04) + Others(replace)
+ * @brief definition of functions for graph analysis and their subsequent execution
+ * @version 0.1
+ * @date 2022-10-26
+ * @todo add names of others members
+ * @copyright Copyright (c) 2022
+ *
  */
 #include <stdio.h>
 #include "../include/graph_properties.h"
