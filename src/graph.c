@@ -7,7 +7,7 @@
 #include "../include/graph.h"
 
 
-graph_t* graph;
+graph_t* graph = NULL;
 
 int number_of_edges=0;
 
