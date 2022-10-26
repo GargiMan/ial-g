@@ -12,7 +12,19 @@
 #ifndef GRAPH_PROPERTIES_H
 #define GRAPH_PROPERTIES_H
 #include <stdbool.h>
-void graph_analyze_properties();
-extern bool graph_is_isolated();
-extern int graph_max_numb_degree();
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    void graph_analyze_properties();
+    extern bool graph_is_complete_graph();
+    extern bool graph_is_isolated();
+    extern int graph_max_numb_degree();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // GRAPH_PROPERTIES_H
