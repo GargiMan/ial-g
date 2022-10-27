@@ -97,7 +97,7 @@ void graph_create_edge(char *nodeName, char *node2Name)
     {
         if (node->edge_nodes[i] == node2)
         {
-            warning_print("Edge (%s,%s) == (%s,%s) already exists\n", nodeName, node2Name, node2Name, nodeName);
+            warning_print("Edge (%s,%s) already exists, edges (%s,%s) and (%s,%s) are equal\n", nodeName, node2Name, nodeName, node2Name, node2Name, nodeName);
             return;
         }
     }
