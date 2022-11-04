@@ -66,6 +66,7 @@ void graph_create_node(char *nodeName)
     }
 
     node_t *node = (node_t *)alloc(1, sizeof(node_t));
+    node->visited = 0;
     node->name = (char *)alloc(strlen(nodeName) + 1, sizeof(char));
     strcpy(node->name, nodeName);
     node->edge_count = 0;
