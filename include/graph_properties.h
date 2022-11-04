@@ -19,7 +19,7 @@ extern "C"
 #endif
 
     void graph_analyze_properties();
-    extern int graph_is_connected_graph();
+    extern bool graph_is_connected_graph();
     extern bool graph_is_complete_graph();
     extern bool graph_is_isolated();
     extern int graph_max_numb_degree();

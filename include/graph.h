@@ -30,6 +30,7 @@ extern "C"
     {
         char *name;
         int edge_count;
+        int visited;
         node_t *edge_nodes[MAX_EDGE_COUNT];
     };
 
