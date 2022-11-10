@@ -15,7 +15,6 @@
 
 /**
  * @brief Program reads unoriented graph from stdin and analyze it's properties
- *
  * @return int exit code
  */
 int main()

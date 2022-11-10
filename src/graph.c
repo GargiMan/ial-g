@@ -18,7 +18,6 @@ int number_of_edges = 0;
 /**
  * @brief Internal allocation function with zeroing and error checking.
  * In case of error exits the program with error code internalError.
- *
  * @param n number of elements to allocate
  * @param size size of each element
  * @return void* pointer to the allocated memory
@@ -33,12 +32,20 @@ void *alloc(size_t n, size_t size)
     return ptr;
 }
 
+/**
+ * @brief Function creates a new graph and set the number of nodes to 0.
+ */
 void graph_init()
 {
+    if (graph)
+        error_exit(internalError, "Graph was already initialized\n");
     graph = (graph_t *)alloc(1, sizeof(graph_t));
     graph->node_count = 0;
 }
 
+/**
+ * @brief Function destroys the graph.
+ */
 void graph_destroy()
 {
     if (!graph)
@@ -51,6 +58,11 @@ void graph_destroy()
     free(graph);
 }
 
+/**
+ * @brief Function creates a new node in graph.
+ * @throw Error when graph is full (max nodes created) or node with same name already exist.
+ * @param nodeName name of the node
+ */
 void graph_create_node(char *nodeName)
 {
     if (graph->node_count >= MAX_NODE_COUNT)
@@ -73,6 +85,11 @@ void graph_create_node(char *nodeName)
     graph->nodes[graph->node_count++] = node;
 }
 
+/**
+ * @brief Function returns node structure by its name.
+ * @param nodeName name of the node
+ * @return node_t* node structure pointer
+ */
 node_t *graph_get_node(char *nodeName)
 {
     for (int i = 0; i < graph->node_count; i++)
@@ -86,6 +103,11 @@ node_t *graph_get_node(char *nodeName)
     return NULL;
 }
 
+/**
+ * @brief Function creates a new edge between 2 nodes in graph.
+ * @param nodeName name of the first node
+ * @param node2Name name of the second node
+ */
 void graph_create_edge(char *nodeName, char *node2Name)
 {
     if (strcmp(nodeName, node2Name) == 0)
@@ -107,16 +129,29 @@ void graph_create_edge(char *nodeName, char *node2Name)
     number_of_edges += 1;
 }
 
+/**
+ * @brief Functions returns count of all nodes in graph
+ * @return int node count
+ */
 int graph_get_node_count()
 {
     return graph->node_count;
 }
 
+/**
+ * @brief Functions returns count of all edges in graph
+ * @return int edge count
+ */
 int graph_get_edge_count()
 {
     return number_of_edges;
 }
 
+/**
+ * @brief Function returns count of all edges connected to node
+ * @param nodeName name of the node
+ * @return int node count
+ */
 int node_get_edge_count(char *nodeName)
 {
     return (graph_get_node(nodeName))->edge_count;

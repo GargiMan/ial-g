@@ -148,5 +148,4 @@ void graph_analyze_properties()
 		printf("Graph is an connected: EMPTY GRAPH\n");
 	}
 	printf("================================================\n");
-	// call property functions
 }
