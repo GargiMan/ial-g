@@ -27,7 +27,6 @@ void parse_node_data()
     bool list_end = false;
 
     char node_name[MAX_NODE_NAME_LENGTH + 1] = "\0";
-    ;
 
     while (!list_end)
     {
