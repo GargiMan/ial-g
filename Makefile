@@ -22,7 +22,7 @@ run:
 	./$(PROG_NAME)
 
 run-test:
-	@for graph in $(TEST_GRAPHS); do ./$(PROG_NAME) < $${graph}; done
+	@for graph in $(TEST_GRAPHS); do printf "$${graph}\n"; ./$(PROG_NAME) < $${graph}; printf "\n"; done
 
 clean:
 	rm -f $(PROG_NAME)
