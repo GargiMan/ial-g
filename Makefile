@@ -1,5 +1,5 @@
 # Makefile IAL Project
-# All (replace)
+# Jindřich Šíma (xsimaj04), Marek Gergel (xgerge01)
 
 PROG_NAME = graph_properties
 CCFLAGS := -g -Wall -Wextra -std=c17 -O2 -pedantic

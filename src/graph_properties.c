@@ -18,7 +18,7 @@
  *  It goes through all neighbors of the inserted nodes,
  *  if any of them has already been checked, it skips,
  *  otherwise the selected one is called recursively until all nodes are checked.
- * @param n Input node for DFS
+ * @param n input node for DFS
  */
 void DFS(node_t *n)
 {
@@ -36,8 +36,7 @@ void DFS(node_t *n)
 /**
  * @brief deep-first search function to determine if the graph is continuous.
  * @author Jindřich Šíma (xsimaj04)
- * @return true Graph is connected.
- * @return false Graph is not connected.
+ * @return true graph is connected
  */
 bool graph_is_connected_graph()
 {
@@ -66,13 +65,12 @@ bool graph_is_connected_graph()
 /**
  * @brief Loops through all nodes, compares the number of vertices, compares with the completeness condition.
  * @author Jindřich Šíma (xsimaj04)
- * @return true Graph is complete.
- * @return false Graph is not complete.
+ * @return true graph is complete
  */
 bool graph_is_complete_graph()
 {
 	int node_count = graph_get_node_count();
-	int mustCount = (node_count * (node_count - 1)) / 4; // The number of edges in the graph must be N(N-1)/2
+	int mustCount = (node_count * (node_count - 1)) / 2; // The number of edges in the graph must be N(N-1)/2
 
 	for (int k = 0; k < node_count; k++)
 	{
@@ -86,8 +84,7 @@ bool graph_is_complete_graph()
 /**
  * @brief Loops through all nodes, compares each vertex count, compares and find an isolated vertex.
  * @author Jindřich Šíma (xsimaj04)
- * @return true if there is at least one isolated node.
- * @return false if there are no isolated nodes.
+ * @return true if there is at least one isolated node
  */
 bool graph_is_isolated()
 {
@@ -107,8 +104,7 @@ bool graph_is_isolated()
 /**
  * @brief Loops through all nodes, compares each vertex count, compares and selects the largest vertex.
  * @author Jindřich Šíma (xsimaj04)
- * @warning If an error occurs, -1 is returned.
- * @return int Return the maximum degree (or valence) of the vertex of the graph.
+ * @return int return the maximum degree (or valence) of the vertex of the graph
  */
 int graph_max_numb_degree()
 {
@@ -126,7 +122,7 @@ int graph_max_numb_degree()
 }
 
 /**
- * @brief analyze graph properties and list them.
+ * @brief analyze graph properties and print them
  *
  */
 void graph_analyze_properties()
