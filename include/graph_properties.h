@@ -11,20 +11,17 @@
 
 #ifndef GRAPH_PROPERTIES_H
 #define GRAPH_PROPERTIES_H
+
+#include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "graph.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    extern bool graph_is_connected();
-    extern bool graph_is_complete();
-    extern bool graph_is_tree();
-    extern bool graph_is_forest();
-    extern bool graph_has_isolated_node();
-    extern unsigned int graph_get_max_degree();
-    extern unsigned int graph_get_cycle_count();
     void graph_analyze_properties();
 
 #ifdef __cplusplus

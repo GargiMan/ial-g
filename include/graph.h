@@ -28,30 +28,15 @@ extern "C"
 
     typedef struct node node_t;
 
-    struct node
-    {
-        char *name;
-        unsigned int edge_count;
-        node_t *edge_nodes[MAX_EDGE_COUNT];
-    };
-
-    typedef struct graph
-    {
-        unsigned int node_count;
-        node_t *nodes[MAX_NODE_COUNT];
-    } graph_t;
-
-    extern struct node root_node_t;
-    extern struct graph root_graph_t;
-    extern graph_t *graph; // Make graph static
-
     void graph_init();
     void graph_destroy();
     void graph_create_node(char *nodeName);
     void graph_create_edge(char *nodeName, char *node2Name);
     unsigned int graph_get_node_count();
-    unsigned int graph_get_edge_count();
-    unsigned int node_get_edge_count(char *nodeName);
+    node_t *graph_get_node_by_index(unsigned int nodeIndex);
+    unsigned int node_get_edge_count(node_t *node);
+    node_t *node_get_edge_node_by_index(node_t *node, unsigned int edgeNodeIndex);
+    unsigned int graph_get_node_index(node_t *node);
 
 #ifdef __cplusplus
 }

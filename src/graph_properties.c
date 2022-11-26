@@ -9,28 +9,30 @@
  *
  */
 
-#include <stdio.h>
-#include <stdint.h>
 #include "../include/graph_properties.h"
-#include "../include/graph.h"
 
 /**
- * @brief Get node index in graph
- * @param node node to be searched
- * @return index of node in graph->nodes array
+ * @brief Check if items array contains item, if not, add it
+ * @param item new item to check
+ * @param items pointer to array with all items
+ * @param items_count pointer to items count in array
  */
-unsigned int graph_get_node_index(node_t *node)
+void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
 {
-	unsigned int node_count = graph_get_node_count();
-
-	for (unsigned int i = 0; i < node_count; i++)
+	// xor item with all items to detect if item is already in items array
+	for (unsigned int i = 0; i < *items_count; i++)
 	{
-		if (graph->nodes[i] == node)
+		// item is already in items
+		if ((item ^ items[i]) == 0)
 		{
-			return i;
+			return;
 		}
 	}
-	return 0;
+
+	// item not found in items, add it
+	// item count has to be retyped to uint64_t to right memory access
+	items[(uint64_t)*items_count] = item;
+	(*items_count)++;
 }
 
 /**
@@ -54,10 +56,12 @@ void deep_first_search(node_t *node, uint64_t *visited)
 	// mark node as visited
 	*visited |= current_node_bit;
 
+	unsigned int node_edge_count = node_get_edge_count(node);
+
 	// go through all neighbors
-	for (unsigned int i = 0; i < node->edge_count; i++)
+	for (unsigned int i = 0; i < node_edge_count; i++)
 	{
-		deep_first_search(node->edge_nodes[i], visited);
+		deep_first_search(node_get_edge_node_by_index(node, i), visited);
 	}
 }
 
@@ -94,30 +98,6 @@ unsigned int get_max_cycle_count(int n, int r)
 }
 
 /**
- * @brief Check if cycles array contains cycle, if not, add it
- * @param cycle new cycle to check
- * @param cycles pointer to array with all cycles
- * @param cycles_count pointer to cycles count in array
- */
-void cycle_add(uint64_t cycle, uint64_t *cycles, unsigned int *cycles_count)
-{
-	// xor cycle with all cycles to detect if cycle is already in cycles array
-	for (unsigned int i = 0; i < *cycles_count; i++)
-	{
-		// cycle is already in cycles
-		if ((cycle ^ cycles[i]) == 0)
-		{
-			return;
-		}
-	}
-
-	// cycle not found in cycles, add it
-	// cycle count has to be retyped to uint64_t to right memory access
-	cycles[(uint64_t)*cycles_count] = cycle;
-	(*cycles_count)++;
-}
-
-/**
  * @brief Get all cycles in graph with deep search
  * @param node node to be searched
  * @param start_node_index index of start node
@@ -126,7 +106,7 @@ void cycle_add(uint64_t cycle, uint64_t *cycles, unsigned int *cycles_count)
  * @param cycles pointer to bit array with all cycles
  * @param cycles_count pointer to count of all cycles in array
  */
-void deep_first_search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t visited, unsigned int visited_count, uint64_t *cycles, unsigned int *cycles_count)
+void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t visited, unsigned int visited_count, uint64_t *cycles, unsigned int *cycles_count)
 {
 	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
 
@@ -138,7 +118,7 @@ void deep_first_search_all_cycles(node_t *node, unsigned int start_node_index, u
 		// cycle must be of at least 3 nodes
 		if ((current_node_bit & start_node_bit) && (visited_count > 2))
 		{
-			cycle_add(visited, cycles, cycles_count);
+			array_add_item(visited, cycles, cycles_count);
 		}
 		return;
 	}
@@ -148,10 +128,32 @@ void deep_first_search_all_cycles(node_t *node, unsigned int start_node_index, u
 	// mark node as visited
 	visited |= current_node_bit;
 
+	unsigned int node_edge_count = node_get_edge_count(node);
+
 	// go through all neighbors
-	for (unsigned int i = 0; i < node->edge_count; i++)
+	for (unsigned int i = 0; i < node_edge_count; i++)
 	{
-		deep_first_search_all_cycles(node->edge_nodes[i], start_node_index, visited, visited_count, cycles, cycles_count);
+		search_all_cycles(node_get_edge_node_by_index(node, i), start_node_index, visited, visited_count, cycles, cycles_count);
+	}
+}
+
+/**
+ * @brief Get all edges in graph
+ * @param node node to be searched
+ * @param edges pointer to bit array with all edges
+ * @param edges_count pointer to count of all edges in array
+ */
+void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
+{
+	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
+
+	unsigned int node_edge_count = node_get_edge_count(node);
+
+	// go through all neighbors
+	for (unsigned int i = 0; i < node_edge_count; i++)
+	{
+		uint64_t neighbor_node_bit = (uint64_t)1 << graph_get_node_index(node_get_edge_node_by_index(node, i));
+		array_add_item((current_node_bit | neighbor_node_bit), edges, edges_count);
 	}
 }
 
@@ -162,15 +164,10 @@ void deep_first_search_all_cycles(node_t *node, unsigned int start_node_index, u
  */
 bool graph_is_connected()
 {
-	if (graph_has_isolated_node())
-	{
-		return false;
-	}
-
 	// use deep first search from first node
 	uint64_t visited = 0;
 
-	deep_first_search(graph->nodes[0], &visited);
+	deep_first_search(graph_get_node_by_index(0), &visited);
 
 	uint64_t all_visited = (1 << graph_get_node_count()) - 1;
 
@@ -187,40 +184,18 @@ bool graph_is_complete()
 	unsigned int node_count = graph_get_node_count();
 
 	// max edges for one node -> node_count - 1
-	// max edges for all nodes -> node_count * (node_count - 1)
-	// max total edges for all nodes -> node_count * (node_count - 1) / 2
 
 	unsigned int max_node_edge_count = node_count - 1;
 
 	for (unsigned int i = 0; i < node_count; i++)
 	{
-		if (graph->nodes[i]->edge_count != max_node_edge_count)
+		if (node_get_edge_count(graph_get_node_by_index(i)) != max_node_edge_count)
 		{
 			return false;
 		}
 	}
 
 	return true;
-}
-
-/**
- * @brief Loops through all nodes, compares each vertex count, compares and find an isolated vertex.
- * @author Jindřich Šíma (xsimaj04)
- * @return true if there is at least one isolated node
- */
-bool graph_has_isolated_node()
-{
-	unsigned int node_count = graph_get_node_count();
-
-	for (unsigned int i = 0; i < node_count; i++)
-	{
-		if (graph->nodes[i]->edge_count == 0)
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 /**
@@ -235,12 +210,40 @@ unsigned int graph_get_max_degree()
 
 	for (unsigned int i = 0; i < node_count; i++)
 	{
-		if (max < graph->nodes[i]->edge_count)
+		unsigned int edge_count = node_get_edge_count(graph_get_node_by_index(i));
+
+		if (max < edge_count)
 		{
-			max = graph->nodes[i]->edge_count;
+			max = edge_count;
 		}
 	}
 	return max;
+}
+
+unsigned int graph_get_edge_count()
+{
+
+	// max total edges for all nodes -> node_count * (node_count - 1) / 2
+
+	unsigned int node_count = graph_get_node_count();
+	unsigned int max_edges_count = node_count * (node_count - 1) / 2;
+
+	// array of edges, one edge is bit array of visited nodes
+	// 0 - not in edge, 1 - in edge
+	uint64_t edges[max_edges_count];
+	for (unsigned int i = 0; i < max_edges_count; i++)
+	{
+		edges[i] = 0;
+	}
+
+	unsigned int edges_count = 0;
+
+	for (unsigned int i = 0; (i < node_count) && (edges_count != max_edges_count); i++)
+	{
+		search_all_edges(graph_get_node_by_index(i), edges, &edges_count);
+	}
+
+	return edges_count;
 }
 
 unsigned int graph_get_cycle_count()
@@ -260,7 +263,7 @@ unsigned int graph_get_cycle_count()
 
 	for (unsigned int i = 0; (i < node_count) && (cycles_count != max_cycles_count); i++)
 	{
-		deep_first_search_all_cycles(graph->nodes[i], i, 0, 0, cycles, &cycles_count);
+		search_all_cycles(graph_get_node_by_index(i), i, 0, 0, cycles, &cycles_count);
 	}
 
 	return cycles_count;

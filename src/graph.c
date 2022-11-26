@@ -11,9 +11,20 @@
 
 #include "../include/graph.h"
 
-graph_t *graph = NULL;
+struct node
+{
+    char *name;
+    unsigned int edge_count;
+    node_t *edge_nodes[MAX_EDGE_COUNT];
+};
 
-unsigned int total_edge_count = 0;
+typedef struct graph
+{
+    unsigned int node_count;
+    node_t *nodes[MAX_NODE_COUNT];
+} graph_t;
+
+graph_t *graph = NULL;
 
 /**
  * @brief Internal allocation function with zeroing and error checking.
@@ -38,7 +49,9 @@ void *alloc(size_t n, size_t size)
 void graph_init()
 {
     if (graph)
+    {
         error_exit(internalError, "Graph was already initialized\n");
+    }
     graph = (graph_t *)alloc(1, sizeof(graph_t));
     graph->node_count = 0;
 }
@@ -49,7 +62,9 @@ void graph_init()
 void graph_destroy()
 {
     if (!graph)
+    {
         return;
+    }
     for (unsigned int i = 0; i < graph->node_count; i++)
     {
         free(graph->nodes[i]->name);
@@ -89,7 +104,7 @@ void graph_create_node(char *nodeName)
  * @param nodeName name of the node
  * @return node_t* node structure pointer
  */
-node_t *graph_get_node(char *nodeName)
+node_t *graph_get_node_by_name(char *nodeName)
 {
     for (unsigned int i = 0; i < graph->node_count; i++)
     {
@@ -98,8 +113,23 @@ node_t *graph_get_node(char *nodeName)
             return graph->nodes[i];
         }
     }
-    error_exit(graphNodeNameNotFoundError, "Node with name '%s' not found\n", nodeName);
+    error_exit(graphNodeNotFoundError, "Node with name '%s' not found\n", nodeName);
     return NULL;
+}
+
+/**
+ * @brief Function returns node structure by its index.
+ * @param nodeIndex name of the node
+ * @return node_t* node structure pointer
+ */
+node_t *graph_get_node_by_index(unsigned int nodeIndex)
+{
+    if (nodeIndex >= graph->node_count)
+    {
+        error_exit(graphNodeNotFoundError, "Node index out of range\n");
+    }
+
+    return graph->nodes[nodeIndex];
 }
 
 /**
@@ -113,8 +143,8 @@ void graph_create_edge(char *nodeName, char *node2Name)
     {
         error_exit(graphNodeEdgeLoopError, "Node '%s' cannot have an edge to itself\n", nodeName);
     }
-    node_t *node = graph_get_node(nodeName);
-    node_t *node2 = graph_get_node(node2Name);
+    node_t *node = graph_get_node_by_name(nodeName);
+    node_t *node2 = graph_get_node_by_name(node2Name);
     for (unsigned int i = 0; i < node->edge_count; i++)
     {
         if (node->edge_nodes[i] == node2)
@@ -125,7 +155,6 @@ void graph_create_edge(char *nodeName, char *node2Name)
     }
     node->edge_nodes[node->edge_count++] = node2;
     node2->edge_nodes[node2->edge_count++] = node;
-    total_edge_count++;
 }
 
 /**
@@ -138,20 +167,41 @@ unsigned int graph_get_node_count()
 }
 
 /**
- * @brief Functions returns count of all edges in graph
- * @return int edge count
+ * @brief Function returns node structure of the edge connected node by index
+ * @param node node structure pointer
+ * @param edgeNodeIndex index of the edge node
+ * @return node_t* node structure pointer
  */
-unsigned int graph_get_edge_count()
+node_t *node_get_edge_node_by_index(node_t *node, unsigned int edgeNodeIndex)
 {
-    return total_edge_count;
+    return node->edge_nodes[edgeNodeIndex];
 }
 
 /**
  * @brief Function returns count of all edges connected to node
- * @param nodeName name of the node
+ * @param node node structure pointer
  * @return int node count
  */
-unsigned int node_get_edge_count(char *nodeName)
+unsigned int node_get_edge_count(node_t *node)
 {
-    return (graph_get_node(nodeName))->edge_count;
+    return node->edge_count;
+}
+
+/**
+ * @brief Get node index in graph
+ * @param node node to be searched
+ * @return index of node in graph->nodes array
+ */
+unsigned int graph_get_node_index(node_t *node)
+{
+    unsigned int node_count = graph_get_node_count();
+
+    for (unsigned int i = 0; i < node_count; i++)
+    {
+        if (graph_get_node_by_index(i) == node)
+        {
+            return i;
+        }
+    }
+    return 0;
 }

@@ -27,7 +27,7 @@ extern "C"
         parserNodeCountOverflowError = 3,
         parserNodeNameLengthOverflowError = 4,
         graphNodeNameDuplicationError = 5,
-        graphNodeNameNotFoundError = 6,
+        graphNodeNotFoundError = 6,
         graphNodeEdgeLoopError = 7,
         internalError = 99
     } errorCodes_t;
