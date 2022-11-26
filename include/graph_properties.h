@@ -18,11 +18,14 @@ extern "C"
 {
 #endif
 
+    extern bool graph_is_connected();
+    extern bool graph_is_complete();
+    extern bool graph_is_tree();
+    extern bool graph_is_forest();
+    extern bool graph_has_isolated_node();
+    extern unsigned int graph_get_max_degree();
+    extern unsigned int graph_get_cycle_count();
     void graph_analyze_properties();
-    extern bool graph_is_connected_graph();
-    extern bool graph_is_complete_graph();
-    extern bool graph_is_isolated();
-    extern int graph_max_numb_degree();
 
 #ifdef __cplusplus
 }

@@ -14,12 +14,29 @@
 #include "../include/resources.h"
 
 /**
+ * @brief Print program help message
+ */
+void print_help()
+{
+    printf("Program reads unoriented graph from stdin and analyze and print it's properties to stdout in formated output\n");
+    printf("This help message is printed when program run contains argument.\n");
+    printf("Run example (from project dir): ./graph_analyzer < testData/graph1\n");
+}
+
+/**
  * @brief Program reads unoriented graph from stdin and analyze it's properties
- *
  * @return int exit code
  */
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc > 1)
+    {
+        // ignore unused parameter warning
+        (void)argv;
+
+        print_help();
+        return 0;
+    }
 
     parse_data(stdin);
 

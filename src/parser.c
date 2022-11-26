@@ -16,6 +16,9 @@ FILE *stream_s;
 int lines = 1;
 int columns = 1;
 
+/**
+ * @brief Function parse node data to graph structure
+ */
 void parse_node_data()
 {
 
@@ -24,7 +27,6 @@ void parse_node_data()
     bool list_end = false;
 
     char node_name[MAX_NODE_NAME_LENGTH + 1] = "\0";
-    ;
 
     while (!list_end)
     {
@@ -106,6 +108,9 @@ void parse_node_data()
     }
 }
 
+/**
+ * @brief Function parse edge data to graph structure
+ */
 void parse_edge_data()
 {
 
@@ -232,9 +237,12 @@ void parse_edge_data()
     }
 }
 
+/**
+ * @brief Function reads data from stream and parse them to graph sctructure
+ * @param stream data input stream
+ */
 void parse_data(FILE *stream)
 {
-
     graph_init();
 
     stream_s = stream;
