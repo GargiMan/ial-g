@@ -13,7 +13,7 @@
 
 graph_t *graph = NULL;
 
-int number_of_edges = 0;
+unsigned int total_edge_count = 0;
 
 /**
  * @brief Internal allocation function with zeroing and error checking.
@@ -50,7 +50,7 @@ void graph_destroy()
 {
     if (!graph)
         return;
-    for (int i = 0; i < graph->node_count; i++)
+    for (unsigned int i = 0; i < graph->node_count; i++)
     {
         free(graph->nodes[i]->name);
         free(graph->nodes[i]);
@@ -69,7 +69,7 @@ void graph_create_node(char *nodeName)
     {
         error_exit(parserNodeCountOverflowError, "Node limit reached (%i)\n", MAX_NODE_COUNT);
     }
-    for (int i = 0; i < graph->node_count; i++)
+    for (unsigned int i = 0; i < graph->node_count; i++)
     {
         if (strcmp(graph->nodes[i]->name, nodeName) == 0)
         {
@@ -78,7 +78,6 @@ void graph_create_node(char *nodeName)
     }
 
     node_t *node = (node_t *)alloc(1, sizeof(node_t));
-    node->visited = 0;
     node->name = (char *)alloc(strlen(nodeName) + 1, sizeof(char));
     strcpy(node->name, nodeName);
     node->edge_count = 0;
@@ -92,7 +91,7 @@ void graph_create_node(char *nodeName)
  */
 node_t *graph_get_node(char *nodeName)
 {
-    for (int i = 0; i < graph->node_count; i++)
+    for (unsigned int i = 0; i < graph->node_count; i++)
     {
         if (strcmp(graph->nodes[i]->name, nodeName) == 0)
         {
@@ -116,7 +115,7 @@ void graph_create_edge(char *nodeName, char *node2Name)
     }
     node_t *node = graph_get_node(nodeName);
     node_t *node2 = graph_get_node(node2Name);
-    for (int i = 0; i < node->edge_count; i++)
+    for (unsigned int i = 0; i < node->edge_count; i++)
     {
         if (node->edge_nodes[i] == node2)
         {
@@ -126,14 +125,14 @@ void graph_create_edge(char *nodeName, char *node2Name)
     }
     node->edge_nodes[node->edge_count++] = node2;
     node2->edge_nodes[node2->edge_count++] = node;
-    number_of_edges += 1;
+    total_edge_count++;
 }
 
 /**
  * @brief Functions returns count of all nodes in graph
  * @return int node count
  */
-int graph_get_node_count()
+unsigned int graph_get_node_count()
 {
     return graph->node_count;
 }
@@ -142,9 +141,9 @@ int graph_get_node_count()
  * @brief Functions returns count of all edges in graph
  * @return int edge count
  */
-int graph_get_edge_count()
+unsigned int graph_get_edge_count()
 {
-    return number_of_edges;
+    return total_edge_count;
 }
 
 /**
@@ -152,7 +151,7 @@ int graph_get_edge_count()
  * @param nodeName name of the node
  * @return int node count
  */
-int node_get_edge_count(char *nodeName)
+unsigned int node_get_edge_count(char *nodeName)
 {
     return (graph_get_node(nodeName))->edge_count;
 }
