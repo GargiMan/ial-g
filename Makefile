@@ -2,7 +2,8 @@
 # Jindřich Šíma (xsimaj04), Marek Gergel (xgerge01)
 
 PROG_NAME = graph_properties
-CCFLAGS := -g -Wall -Wextra -std=c17 -O2 -pedantic
+# -g for debug , -O2 for optimization (0 - disabled, 1 - less, 2 - more)
+CCFLAGS := -g -O0 -Wall -Wextra -std=c17 -pedantic
 SRC_FILES := $(wildcard src/*.c)
 HEADER_FILES := $(wildcard include/*.h)
 OBJ_FILES := $(patsubst src/%.c,libs/%.o,$(SRC_FILES))
