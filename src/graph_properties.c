@@ -133,7 +133,7 @@ void deep_first_search_all_cycles(node_t *node, unsigned int start_node_index, u
 	// if node is already visited, return visited nodes
 	if (current_node_bit & visited)
 	{
-		uint64_t start_node_bit = 1 << start_node_index;
+		uint64_t start_node_bit = (uint64_t)1 << start_node_index;
 
 		// cycle must be of at least 3 nodes
 		if ((current_node_bit & start_node_bit) && (visited_count > 2))
