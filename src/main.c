@@ -31,6 +31,9 @@ int main(int argc, char *argv[])
 {
     if (argc > 1)
     {
+        // ignore unused parameter warning
+        (void)argv;
+
         print_help();
         return 0;
     }
