@@ -1,6 +1,6 @@
 /**
  * @file graph_properties.c
- * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04) + Others(replace)
+ * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04), Tomáš Fišer (xfiser16) + Others(replace)
  * @brief definition of functions for graph analysis and their subsequent execution
  * @version 0.1
  * @date 2022-10-26
