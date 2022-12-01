@@ -93,7 +93,8 @@ void parse_node_data()
         if ((last_char == ',' || last_char == '}') && strlen(node_name) != 0)
         {
             graph_create_node(node_name);
-            for (int i = 0; i < (int)strlen(node_name); i++)
+            int node_name_len = (int)strlen(node_name);
+            for (int i = 0; i < node_name_len; i++)
             {
                 node_name[i] = '\0';
             }
@@ -220,11 +221,13 @@ void parse_edge_data()
         if (edge_end && strlen(node_name) != 0 && strlen(node2_name) != 0)
         {
             graph_create_edge(node_name, node2_name);
-            for (int i = 0; i < (int)strlen(node_name); i++)
+            int node_name_len = (int)strlen(node_name);
+            for (int i = 0; i < node_name_len; i++)
             {
                 node_name[i] = '\0';
             }
-            for (int i = 0; i < (int)strlen(node2_name); i++)
+            int node2_name_len = (int)strlen(node2_name);
+            for (int i = 0; i < node2_name_len; i++)
             {
                 node2_name[i] = '\0';
             }
