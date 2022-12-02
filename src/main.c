@@ -1,10 +1,10 @@
 /**
  * @file main.c
- * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04) + Others(replace)
- * @brief declaration of functions for graph analysis and their subsequent execution
+ * @author Marek Gergel (xgerge01)
+ * @brief definition of main function and program print help function
  * @version 0.1
  * @date 2022-10-26
- * @todo add names of others members
+ *
  * @copyright Copyright (c) 2022
  *
  */

@@ -1,7 +1,7 @@
 /**
  * @file parser.c
  * @author Marek Gergel (xgerge01)
- * @brief
+ * @brief definition of functions and variables for parsing input with graph data
  * @version 0.1
  * @date 2022-10-26
  *

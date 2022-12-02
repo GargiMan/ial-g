@@ -1,7 +1,7 @@
 /**
  * @file graph.h
  * @author Marek Gergel (xgerge01)
- * @brief
+ * @brief declaration of functions and variables for graph scructure access and manipulation
  * @version 0.1
  * @date 2022-10-26
  *
@@ -19,7 +19,7 @@
 
 // Limited to 62 nodes, because of cycle count implementation
 #define MAX_NODE_COUNT (unsigned int)(sizeof(uint64_t) * 8) - 1
-#define MAX_EDGE_COUNT (MAX_NODE_COUNT - 1)
+#define MAX_NODE_EDGE_COUNT (MAX_NODE_COUNT - 1)
 
 #ifdef __cplusplus
 extern "C"

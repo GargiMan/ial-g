@@ -1,10 +1,10 @@
 /**
  * @file graph_properties.c
- * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04), Tomáš Fišer (xfiser16) + Others(replace)
- * @brief definition of functions for graph analysis and their subsequent execution
+ * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04), Tomáš Fišer (xfiser16), Dmytro Sadovskyi (xsadov06)
+ * @brief definition of functions and variables for graph analysis and their subsequent execution
  * @version 0.1
  * @date 2022-10-26
- * @todo add names of others members
+ *
  * @copyright Copyright (c) 2022
  *
  */
@@ -13,7 +13,7 @@
 
 /**
  * @brief Check if items array contains item, if not, add it
- * @param item new item to check
+ * @param item new item to check and add
  * @param items pointer to array with all items
  * @param items_count pointer to items count in array
  */
@@ -68,11 +68,11 @@ void deep_first_search(node_t *node, uint64_t *visited)
 /**
  * @brief Get factorial of a number
  * @param n number to get factorial of
- * @return int result of factorial
+ * @return unsigned int result of factorial
  */
 unsigned int fact(int n)
 {
-	if (n <= 1)
+	if (n < 2)
 	{
 		return 1;
 	}
@@ -84,17 +84,19 @@ unsigned int fact(int n)
  * @brief Get the max cycle count
  * @param n node count
  * @param r max size of cycle
- * @return int max cycle count
+ * @return unsigned int max cycle count
  */
 unsigned int get_max_cycle_count(int n, int r)
 {
+	// minimal cycle size is 3
 	if (r < 3 || n < 3)
 	{
 		return 0;
 	}
 
-	// cycle count (r size of n nodes)  n!/((n-r)!*r!)
-	return fact(n) / (fact(n - r) * fact(r)) + get_max_cycle_count(n, r - 1);
+	// cycle count (r nodes in cycle of n nodes)  n!/((n-r)!*r!)
+	// recursive (cycle count for r size) + (cycle count for r-1 size) + ...
+	return (fact(n) / (fact(n - r) * fact(r))) + get_max_cycle_count(n, r - 1);
 }
 
 /**
@@ -159,8 +161,7 @@ void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
 
 /**
  * @brief deep-first search function to determine if the graph is continuous.
- * @author Jindřich Šíma (xsimaj04)
- * @return true graph is connected
+ * @return bool graph is connected
  */
 bool graph_is_connected()
 {
@@ -176,15 +177,13 @@ bool graph_is_connected()
 
 /**
  * @brief Loops through all nodes, compares the number of vertices, compares with the completeness condition.
- * @author Jindřich Šíma (xsimaj04)
- * @return true graph is complete
+ * @return bool graph is complete
  */
 bool graph_is_complete()
 {
-	unsigned int node_count = graph_get_node_count();
-
 	// max edges for one node -> node_count - 1
 
+	unsigned int node_count = graph_get_node_count();
 	unsigned int max_node_edge_count = node_count - 1;
 
 	for (unsigned int i = 0; i < node_count; i++)
@@ -200,8 +199,7 @@ bool graph_is_complete()
 
 /**
  * @brief Loops through all nodes, compares each vertex count, compares and selects the largest vertex.
- * @author Jindřich Šíma (xsimaj04)
- * @return int return the maximum degree (or valence) of the vertex of the graph
+ * @return unsigned int return the maximum degree (or valence) of the vertex of the graph
  */
 unsigned int graph_get_max_degree()
 {
@@ -220,13 +218,21 @@ unsigned int graph_get_max_degree()
 	return max;
 }
 
+/**
+ * @brief Get edges count of graph with deep search
+ * @return unsigned int total edge count
+ */
 unsigned int graph_get_edge_count()
 {
-
 	// max total edges for all nodes -> node_count * (node_count - 1) / 2
 
 	unsigned int node_count = graph_get_node_count();
 	unsigned int max_edges_count = node_count * (node_count - 1) / 2;
+
+	if (max_edges_count == 0)
+	{
+		return 0;
+	}
 
 	// array of edges, one edge is bit array of visited nodes
 	// 0 - not in edge, 1 - in edge
@@ -246,10 +252,19 @@ unsigned int graph_get_edge_count()
 	return edges_count;
 }
 
+/**
+ * @brief Get cycle count of graph with deep search
+ * @return unsigned int total cycle count
+ */
 unsigned int graph_get_cycle_count()
 {
 	unsigned int node_count = graph_get_node_count();
 	unsigned int max_cycles_count = get_max_cycle_count(node_count, node_count);
+
+	if (max_cycles_count == 0)
+	{
+		return 0;
+	}
 
 	// array of cycles, one cycle is bit array of visited nodes
 	// 0 - not in cycle, 1 - in cycle
@@ -271,7 +286,7 @@ unsigned int graph_get_cycle_count()
 
 /**
  * @brief Graph is forest if it has no cycles
- * @return true when graph is forest
+ * @return bool graph is forest
  */
 bool graph_is_forest()
 {
@@ -280,7 +295,7 @@ bool graph_is_forest()
 
 /**
  * @brief Graph is a tree if it is forest (has no cycles) and is connected
- * @return true when graph is tree
+ * @return bool graph is tree
  */
 bool graph_is_tree()
 {

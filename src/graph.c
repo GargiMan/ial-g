@@ -1,7 +1,7 @@
 /**
  * @file graph.c
  * @author Marek Gergel (xgerge01)
- * @brief
+ * @brief definition of functions and variables for graph scructure access and manipulation
  * @version 0.1
  * @date 2022-10-26
  *
@@ -15,7 +15,7 @@ struct node
 {
     char *name;
     unsigned int edge_count;
-    node_t *edge_nodes[MAX_EDGE_COUNT];
+    node_t *edge_nodes[MAX_NODE_EDGE_COUNT];
 };
 
 typedef struct graph

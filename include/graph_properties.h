@@ -1,10 +1,10 @@
 /**
  * @file graph_properties.h
- * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04) + Others(replace)
- * @brief declaration of functions for graph analysis and their subsequent execution
+ * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04), Tomáš Fišer (xfiser16), Dmytro Sadovskyi (xsadov06)
+ * @brief declaration of functions and variables for graph analysis and their subsequent execution
  * @version 0.1
  * @date 2022-10-26
- * @todo add names of others members
+ *
  * @copyright Copyright (c) 2022
  *
  */

@@ -1,7 +1,7 @@
 /**
  * @file error.h
  * @author Marek Gergel (xgerge01)
- * @brief
+ * @brief declaration of functions and variables for error handling
  * @version 0.1
  * @date 2022-10-26
  *

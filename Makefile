@@ -3,7 +3,7 @@
 
 PROG_NAME = graph_properties
 # -g for debug , -O2 for optimization (0 - disabled, 1 - less, 2 - more)
-CCFLAGS := -g -O0 -Wall -Wextra -std=c17 -pedantic
+CCFLAGS := -O0 -Wall -Wextra -std=c17 -pedantic
 SRC_FILES := $(wildcard src/*.c)
 HEADER_FILES := $(wildcard include/*.h)
 OBJ_FILES := $(patsubst src/%.c,libs/%.o,$(SRC_FILES))
@@ -14,10 +14,10 @@ TEST_GRAPHS := $(wildcard testData/*)
 all: program
 
 libs/%.o: src/%.c
-	gcc $(CCFLAGS) -DDEBUG -c $< -o $@
+	gcc $(CCFLAGS) -c $< -o $@
 
 program: $(OBJ_FILES)
-	gcc $(CCFLAGS) -DDEBUG $^ -o $(PROG_NAME)
+	gcc $(CCFLAGS) $^ -o $(PROG_NAME)
 
 run:
 	./$(PROG_NAME)
