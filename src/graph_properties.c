@@ -285,21 +285,21 @@ unsigned int graph_get_cycle_count()
 }
 
 /**
- * @brief Graph is forest if it has no cycles
+ * @brief Graph is forest if it has no cycles and is not connected
  * @return bool graph is forest
  */
 bool graph_is_forest()
 {
-	return graph_get_cycle_count() == 0;
+	return graph_get_cycle_count() == 0 && !graph_is_connected();
 }
 
 /**
- * @brief Graph is a tree if it is forest (has no cycles) and is connected
+ * @brief Graph is a tree if it has no cycles and is connected
  * @return bool graph is tree
  */
 bool graph_is_tree()
 {
-	return graph_is_forest() && graph_is_connected();
+	return graph_get_cycle_count() == 0 && graph_is_connected();
 }
 
 /**
