@@ -1,7 +1,8 @@
 /**
  * @file graph_properties.c
  * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04), Tomáš Fišer (xfiser16), Dmytro Sadovskyi (xsadov06)
- * @brief definition of functions and variables for graph analysis and their subsequent execution
+ * @brief definition of functions and variables for graph analysis and their subsequent execution,
+ * time complexity description (|V| = number of vertices (nodes), |E| = number of edges)
  * @version 0.1
  * @date 2022-10-26
  *
@@ -12,7 +13,7 @@
 #include "../include/graph_properties.h"
 
 /**
- * @brief Check if items array contains item, if not, add it
+ * @brief Check if items array contains item, if not, add it.
  * @param item new item to check and add
  * @param items pointer to array with all items
  * @param items_count pointer to items count in array
@@ -161,6 +162,8 @@ void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
 
 /**
  * @brief deep-first search function to determine if the graph is continuous.
+ *
+ * Time complexity: O(|V|+|E|)
  * @return bool graph is connected
  */
 bool graph_is_connected()
@@ -177,6 +180,8 @@ bool graph_is_connected()
 
 /**
  * @brief Loops through all nodes, compares the number of vertices, compares with the completeness condition.
+ *
+ * Time complexity: O(|V|)
  * @return bool graph is complete
  */
 bool graph_is_complete()
@@ -199,6 +204,8 @@ bool graph_is_complete()
 
 /**
  * @brief Loops through all nodes, compares each vertex count, compares and selects the largest vertex.
+ *
+ * Time complexity: O(|V|)
  * @return unsigned int return the maximum degree (or valence) of the vertex of the graph
  */
 unsigned int graph_get_max_degree()
@@ -219,7 +226,9 @@ unsigned int graph_get_max_degree()
 }
 
 /**
- * @brief Get edges count of graph with deep search
+ * @brief Get edges count of graph with deep search.
+ *
+ * Time complexity: O(|V|+|E|)
  * @return unsigned int total edge count
  */
 unsigned int graph_get_edge_count()
@@ -253,7 +262,9 @@ unsigned int graph_get_edge_count()
 }
 
 /**
- * @brief Get cycle count of graph with deep search
+ * @brief Get cycle count of graph with deep search.
+ *
+ * Time complexity: O(|V|+|E|)
  * @return unsigned int total cycle count
  */
 unsigned int graph_get_cycle_count()
@@ -285,7 +296,9 @@ unsigned int graph_get_cycle_count()
 }
 
 /**
- * @brief Graph is forest if it has no cycles and is not connected
+ * @brief Graph is forest if it has no cycles and is not connected.
+ *
+ * Time complexity: O(|V|+|E|)
  * @return bool graph is forest
  */
 bool graph_is_forest()
@@ -294,7 +307,9 @@ bool graph_is_forest()
 }
 
 /**
- * @brief Graph is a tree if it has no cycles and is connected
+ * @brief Graph is a tree if it has no cycles and is connected.
+ *
+ * Time complexity: O(|V|+|E|)
  * @return bool graph is tree
  */
 bool graph_is_tree()
