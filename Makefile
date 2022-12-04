@@ -9,7 +9,7 @@ HEADER_FILES := $(wildcard include/*.h)
 OBJ_FILES := $(patsubst src/%.c,libs/%.o,$(SRC_FILES))
 TEST_GRAPHS := $(wildcard testData/*)
 
-.PHONY: all program run clean
+.PHONY: all program run run-test clean
 
 all: program
 
