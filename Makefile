@@ -9,7 +9,7 @@ HEADER_FILES := $(wildcard include/*.h)
 OBJ_FILES := $(patsubst src/%.c,libs/%.o,$(SRC_FILES))
 TEST_GRAPHS := $(wildcard testData/*)
 
-.PHONY: all program run run-test clean
+.PHONY: all program run run-test clean zip
 
 all: program
 
@@ -26,5 +26,8 @@ run-test:
 	@for graph in $(TEST_GRAPHS); do printf "$${graph}\n"; ./$(PROG_NAME) < $${graph}; printf "\n"; done
 
 clean:
-	rm -f $(PROG_NAME)
+	rm -f $(PROG_NAME)*
 	rm -f libs/*.o
+
+zip: clean
+	zip -r $(PROG_NAME).zip include libs src testData Makefile dokumentace.pdf
