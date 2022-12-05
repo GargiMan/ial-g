@@ -159,8 +159,6 @@ void graph_create_edge(char *nodeName, char *node2Name)
 
 /**
  * @brief Functions returns count of all nodes in graph
- *
- * Time complexity: O(1)
  * @return int node count
  */
 unsigned int graph_get_node_count()

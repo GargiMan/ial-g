@@ -11,6 +11,24 @@
  */
 
 #include "../include/graph_properties.h"
+#include <time.h>
+
+clock_t begin, end;
+
+void timer_start()
+{
+	begin = clock();
+}
+
+void timer_stop()
+{
+	end = clock();
+}
+
+void timer_print()
+{
+	printf("\t\truntime: %fs\n", (double)(end - begin) / CLOCKS_PER_SEC);
+}
 
 /**
  * @brief Check if items array contains item, if not, add it.
@@ -168,6 +186,8 @@ void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
  */
 bool graph_is_connected()
 {
+	timer_start();
+
 	// use deep first search from first node
 	uint64_t visited = 0;
 
@@ -175,7 +195,11 @@ bool graph_is_connected()
 
 	uint64_t all_visited = (1 << graph_get_node_count()) - 1;
 
-	return visited == all_visited;
+	bool result = (visited == all_visited);
+
+	timer_stop();
+
+	return result;
 }
 
 /**
@@ -186,6 +210,8 @@ bool graph_is_connected()
  */
 bool graph_is_complete()
 {
+	timer_start();
+
 	// max edges for one node -> node_count - 1
 
 	unsigned int node_count = graph_get_node_count();
@@ -195,10 +221,12 @@ bool graph_is_complete()
 	{
 		if (node_get_edge_count(graph_get_node_by_index(i)) != max_node_edge_count)
 		{
+			timer_stop();
 			return false;
 		}
 	}
 
+	timer_stop();
 	return true;
 }
 
@@ -210,6 +238,8 @@ bool graph_is_complete()
  */
 unsigned int graph_get_max_degree()
 {
+	timer_start();
+
 	unsigned int max = 0;
 	unsigned int node_count = graph_get_node_count();
 
@@ -222,7 +252,27 @@ unsigned int graph_get_max_degree()
 			max = edge_count;
 		}
 	}
+
+	timer_stop();
+
 	return max;
+}
+
+/**
+ * @brief Get node count function with timer
+ *
+ * Time complexity: O(1)
+ * @return unsigned int
+ */
+unsigned int graph_get_node_count_wt()
+{
+	timer_start();
+
+	unsigned int result = graph_get_node_count();
+
+	timer_stop();
+
+	return result;
 }
 
 /**
@@ -233,6 +283,8 @@ unsigned int graph_get_max_degree()
  */
 unsigned int graph_get_edge_count()
 {
+	timer_start();
+
 	// max total edges for all nodes -> node_count * (node_count - 1) / 2
 
 	unsigned int node_count = graph_get_node_count();
@@ -258,6 +310,8 @@ unsigned int graph_get_edge_count()
 		search_all_edges(graph_get_node_by_index(i), edges, &edges_count);
 	}
 
+	timer_stop();
+
 	return edges_count;
 }
 
@@ -269,6 +323,8 @@ unsigned int graph_get_edge_count()
  */
 unsigned int graph_get_cycle_count()
 {
+	timer_start();
+
 	unsigned int node_count = graph_get_node_count();
 	unsigned int max_cycles_count = get_max_cycle_count(node_count, node_count);
 
@@ -292,18 +348,9 @@ unsigned int graph_get_cycle_count()
 		search_all_cycles(graph_get_node_by_index(i), i, 0, 0, cycles, &cycles_count);
 	}
 
-	return cycles_count;
-}
+	timer_stop();
 
-/**
- * @brief Graph is forest if it has no cycles and is not connected.
- *
- * Time complexity: O(|V|+|E|)
- * @return bool graph is forest
- */
-bool graph_is_forest()
-{
-	return graph_get_cycle_count() == 0 && !graph_is_connected();
+	return cycles_count;
 }
 
 /**
@@ -314,7 +361,30 @@ bool graph_is_forest()
  */
 bool graph_is_tree()
 {
-	return graph_get_cycle_count() == 0 && graph_is_connected();
+	timer_start();
+
+	bool result = graph_get_cycle_count() == 0 && graph_is_connected();
+
+	timer_stop();
+
+	return result;
+}
+
+/**
+ * @brief Graph is forest if it has no cycles and is not connected.
+ *
+ * Time complexity: O(|V|+|E|)
+ * @return bool graph is forest
+ */
+bool graph_is_forest()
+{
+	timer_start();
+
+	bool result = graph_get_cycle_count() == 0 && !graph_is_connected();
+
+	timer_stop();
+
+	return result;
 }
 
 /**
@@ -322,14 +392,23 @@ bool graph_is_tree()
  */
 void graph_analyze_properties()
 {
-	printf("==================================\n");
-	printf("Node count:\t\t %d\n", graph_get_node_count());
-	printf("Edge count:\t\t %d\n", graph_get_edge_count());
-	printf("Cycle count:\t\t %d\n", graph_get_cycle_count());
-	printf("Maximum degree:\t\t %d\n", graph_get_max_degree());
-	printf("Graph is connected:\t %s\n", graph_is_connected() ? "yes" : "no");
-	printf("Graph is complete:\t %s\n", graph_is_complete() ? "yes" : "no");
-	printf("Graph is tree:\t\t %s\n", graph_is_tree() ? "yes" : "no");
-	printf("Graph is forest\t\t %s\n", graph_is_forest() ? "yes" : "no");
-	printf("==================================\n");
+
+	printf("===========================================================\n");
+	printf("Node count:\t\t %d", graph_get_node_count_wt());
+	timer_print();
+	printf("Edge count:\t\t %d", graph_get_edge_count());
+	timer_print();
+	printf("Cycle count:\t\t %d", graph_get_cycle_count());
+	timer_print();
+	printf("Maximum degree:\t\t %d", graph_get_max_degree());
+	timer_print();
+	printf("Graph is connected:\t %s", graph_is_connected() ? "yes" : "no");
+	timer_print();
+	printf("Graph is complete:\t %s", graph_is_complete() ? "yes" : "no");
+	timer_print();
+	printf("Graph is tree:\t\t %s", graph_is_tree() ? "yes" : "no");
+	timer_print();
+	printf("Graph is forest\t\t %s", graph_is_forest() ? "yes" : "no");
+	timer_print();
+	printf("===========================================================\n");
 }
