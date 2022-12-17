@@ -26,8 +26,8 @@ run-test:
 	@for graph in $(TEST_GRAPHS); do printf "$${graph}\n"; ./$(PROG_NAME) < $${graph}; printf "\n"; done
 
 clean:
-	rm -f $(PROG_NAME)*
-	rm -f libs/*.o
+	rm -rf $(PROG_NAME)*
+	rm -rf libs/*.o
 
 zip: clean
 	zip -r $(PROG_NAME).zip include libs src testData Makefile dokumentace.pdf
