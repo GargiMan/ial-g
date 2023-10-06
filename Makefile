@@ -8,6 +8,7 @@ CCFLAGS := -g -O0 -Wall -Wextra -std=c17 -pedantic
 SRC_FILES := $(wildcard src/*.c)
 HEADER_FILES := $(wildcard include/*.h)
 OBJ_FILES := $(SRC_FILES:.c=.o)
+OBJ_FILES := $(OBJ_FILES:src/%=libs/%)
 TEST_FILES := $(wildcard testData/*)
 
 .PHONY: all run run-test clean zip
