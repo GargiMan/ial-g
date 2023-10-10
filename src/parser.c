@@ -57,7 +57,14 @@ void parse_edge_data()
 
             if (!(last_char == '0' || last_char == '1'))
             {
-                error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, column_index);
+                if (last_char == EOF)
+                {
+                    error_exit(parserSyntaxError, "Graph is not finished, unexpected 'EOF'\n");
+                }
+                else
+                {
+                    error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, column_index);
+                }
             }
 
             if (last_char == '1')
@@ -85,6 +92,12 @@ void parse_edge_data()
             last_char = fgetc(stream_s);
         }
 
+        // Skips characters above main diagonal
+        while (last_char != '\n' && last_char != EOF)
+        {
+            last_char = fgetc(stream_s);
+        }
+        
         last_char = fgetc(stream_s);
         lines++;
     }
