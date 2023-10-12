@@ -15,13 +15,13 @@ struct node
 {
     char *name;
     unsigned int edge_count;
-    node_t *edge_nodes[MAX_NODE_EDGE_COUNT];
+    node_t **edge_nodes;
 };
 
 typedef struct graph
 {
     unsigned int node_count;
-    node_t *nodes[MAX_NODE_COUNT];
+    node_t **nodes;
 } graph_t;
 
 graph_t *graph = NULL;
@@ -53,6 +53,7 @@ void graph_init()
         error_exit(internalError, "Graph was already initialized\n");
     }
     graph = (graph_t *)alloc(1, sizeof(graph_t));
+    graph->nodes = NULL;
     graph->node_count = 0;
 }
 
@@ -68,8 +69,10 @@ void graph_destroy()
     for (unsigned int i = 0; i < graph->node_count; i++)
     {
         free(graph->nodes[i]->name);
+        free(graph->nodes[i]->edge_nodes[i]);
         free(graph->nodes[i]);
     }
+    free(graph->nodes);
     free(graph);
 }
 
@@ -79,11 +82,7 @@ void graph_destroy()
  * @param nodeName name of the node
  */
 void graph_create_node(char *nodeName)
-{
-    if (graph->node_count >= MAX_NODE_COUNT)
-    {
-        error_exit(parserNodeCountOverflowError, "Node limit reached (%i)\n", MAX_NODE_COUNT);
-    }
+{   
     for (unsigned int i = 0; i < graph->node_count; i++)
     {
         if (strcmp(graph->nodes[i]->name, nodeName) == 0)
@@ -96,7 +95,14 @@ void graph_create_node(char *nodeName)
     node->name = (char *)alloc(strlen(nodeName) + 1, sizeof(char));
     strcpy(node->name, nodeName);
     node->edge_count = 0;
-    graph->nodes[graph->node_count++] = node;
+    node->edge_nodes = NULL;
+
+    graph->node_count++;
+    graph->nodes = realloc(graph->nodes, graph->node_count * sizeof(node_t *));
+    if(!graph->nodes){
+        error_exit(internalError, "Failed to allocate memory\n");
+    }
+    graph->nodes[graph->node_count - 1] = node;
 }
 
 /**
@@ -153,8 +159,19 @@ void graph_create_edge(char *nodeName, char *node2Name)
             return;
         }
     }
-    node->edge_nodes[node->edge_count++] = node2;
-    node2->edge_nodes[node2->edge_count++] = node;
+
+    node->edge_count++;
+    node->edge_nodes = realoc(node->edge_nodes, node->edge_count * sizeof(node_t*));
+    if(!node->edge_nodes)
+        error_exit(internalError, "Failed to allocate memory for edge nodes");
+
+    node2->edge_count++;
+    node2->edge_nodes = realloc(node2->edge_nodes, node2->edge_count * sizeof(node_t*));
+    if(!node2->edge_nodes)
+        error_exit(internalError, "Failed to allocate memory for edge nodes");
+
+    node->edge_nodes[node->edge_count - 1] = node2;
+    node2->edge_nodes[node2->edge_count - 1] = node;
 }
 
 /**
