@@ -18,8 +18,6 @@
 #include "graph.h"
 #include "error.h"
 
-#define MAX_NODE_NAME_LENGTH 256
-
 #ifdef __cplusplus
 extern "C"
 {

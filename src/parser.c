@@ -13,98 +13,24 @@
 
 FILE *stream_s;
 
+// Node indexes
 int lines = 1;
 int columns = 1;
-int line_digit_count = 0;
-int column_digit_count = 0;
+
+// Last char from stream
+char last_char;
 
 /**
- * @brief Function parse edge data to graph structure
+ * @brief Get the char from saved stream
+ * @return char from stream
  */
-void parse_edge_data()
-{    
-    char last_char = fgetc(stream_s);
-
-    while (last_char != EOF)
-    {
-        //Counting number of digits 
-        line_digit_count = 0;
-        int temp_lines = lines;
-        if (temp_lines != 0)
-        {
-            while(temp_lines != 0)  
-            {  
-                temp_lines = temp_lines/10;  
-                line_digit_count++;  
-            } 
-        }
-        else 
-        {
-            line_digit_count = 1;
-        }
-        
-        //Creating name from line number
-        char node_name[line_digit_count + 1];
-        sprintf(node_name, "%d", lines);
-        graph_create_node(node_name);
-
-        for (int column_index = 1; column_index <= lines; column_index++)
-        {
-            while (last_char == ' ')
-            {
-                last_char = fgetc(stream_s);
-            }
-
-            if (!(last_char == '0' || last_char == '1'))
-            {
-                if (last_char == EOF)
-                {
-                    error_exit(parserSyntaxError, "Graph is not finished, unexpected 'EOF'\n");
-                }
-                else
-                {
-                    error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, column_index);
-                }
-            }
-
-            if (last_char == '1')
-            {
-                column_digit_count = 0;
-                int temp_column = column_index;
-                if (temp_column != 0)
-                {
-                    while(temp_column != 0)  
-                    {  
-                        temp_column = temp_column/10;  
-                        column_digit_count++;  
-                    }
-                }
-                else 
-                {
-                    column_digit_count = 1;
-                }
-                // Creating name from column index
-                char node_name2[column_digit_count + 1];
-                sprintf(node_name2, "%d", column_index);
-                graph_create_edge(node_name, node_name2);
-            }
-
-            last_char = fgetc(stream_s);
-        }
-
-        // Skips characters above main diagonal
-        while (last_char != '\n' && last_char != EOF)
-        {
-            last_char = fgetc(stream_s);
-        }
-        
-        last_char = fgetc(stream_s);
-        lines++;
-    }
+char get_char() 
+{
+    return (last_char = fgetc(stream_s));
 }
 
 /**
- * @brief Function reads data from stream and parse them to graph sctructure
+ * @brief Function reads graph data from stream and parse them to graph sctructure
  * @param stream data input stream
  */
 void parse_data(FILE *stream)
@@ -113,5 +39,54 @@ void parse_data(FILE *stream)
 
     stream_s = stream;
 
-    parse_edge_data();
+    while (get_char() != EOF)
+    {
+        //Creating name from line number, indexing from 1
+        char node_name[32];
+        sprintf(node_name, "%d", lines);
+
+        graph_create_node(node_name);
+
+        for (columns = 1; columns < lines; columns++)
+        {
+            // Skips spaces
+            while (last_char == ' ') get_char();
+
+            if (columns == lines && last_char != '0') {
+                error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, columns);
+            }
+
+            // Creating name from column index, indexing from 1
+            char node_name2[32];
+            sprintf(node_name2, "%d", columns);
+
+            switch (last_char)
+            {
+                case ' ':
+                    columns--;
+                    break;
+                case '0':
+                    break;
+                case '1':
+                    graph_create_edge(node_name, node_name2);
+                    break;
+                case EOF:
+                    error_exit(parserSyntaxError, "Graph is not finished, unexpected 'EOF'\n");
+                    break;
+                default:
+                    error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, columns);
+                    break;
+            }
+        }
+
+        // Skips characters above main diagonal
+        while (get_char() != '\n' && last_char != EOF);
+        
+        lines++;
+    }
+
+    if (lines == 1 && last_char == EOF)
+    {
+        error_exit(parserSyntaxError, "Graph is empty\n");
+    }
 }
