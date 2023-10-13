@@ -161,7 +161,7 @@ void graph_create_edge(char *nodeName, char *node2Name)
     }
 
     node->edge_count++;
-    node->edge_nodes = realoc(node->edge_nodes, node->edge_count * sizeof(node_t*));
+    node->edge_nodes = realloc(node->edge_nodes, node->edge_count * sizeof(node_t*));
     if(!node->edge_nodes)
         error_exit(internalError, "Failed to allocate memory for edge nodes");
 
