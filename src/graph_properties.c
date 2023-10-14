@@ -64,7 +64,7 @@ void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
  */
 void deep_first_search(node_t *node, uint64_t *visited)
 {
-	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
+	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
 
 	// if node is already visited, return visited nodes
 	if (current_node_bit & *visited)
