@@ -129,7 +129,7 @@ unsigned int get_max_cycle_count(int n, int r)
  */
 void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t visited, unsigned int visited_count, uint64_t *cycles, unsigned int *cycles_count)
 {
-	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
+	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
 
 	// if node is already visited, return visited nodes
 	if (current_node_bit & visited)
@@ -166,14 +166,14 @@ void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t vis
  */
 void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
 {
-	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
+	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
 
 	unsigned int node_edge_count = node_get_edge_count(node);
 
 	// go through all neighbors
 	for (unsigned int i = 0; i < node_edge_count; i++)
 	{
-		uint64_t neighbor_node_bit = (uint64_t)1 << graph_get_node_index(node_get_edge_node_by_index(node, i));
+		uint64_t neighbor_node_bit = (uint64_t)1 << node_get_index(node_get_edge_node_by_index(node, i));
 		array_add_item((current_node_bit | neighbor_node_bit), edges, edges_count);
 	}
 }

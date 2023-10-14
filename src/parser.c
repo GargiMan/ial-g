@@ -14,8 +14,8 @@
 FILE *stream_s;
 
 // Node indexes
-int lines = 1;
-int columns = 1;
+unsigned int lines = 1;
+unsigned int columns = 1;
 
 // Last char from stream
 char last_char;
@@ -41,11 +41,7 @@ void parse_data(FILE *stream)
 
     while (get_char() != EOF)
     {
-        //Creating name from line number, indexing from 1
-        char node_name[32];
-        sprintf(node_name, "%d", lines);
-
-        graph_create_node(node_name);
+        graph_create_node(lines);
 
         for (columns = 1; columns < lines; columns++)
         {
@@ -56,10 +52,6 @@ void parse_data(FILE *stream)
                 error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, columns);
             }
 
-            // Creating name from column index, indexing from 1
-            char node_name2[32];
-            sprintf(node_name2, "%d", columns);
-
             switch (last_char)
             {
                 case ' ':
@@ -68,7 +60,7 @@ void parse_data(FILE *stream)
                 case '0':
                     break;
                 case '1':
-                    graph_create_edge(node_name, node_name2);
+                    graph_create_edge(lines, columns);
                     break;
                 case EOF:
                     error_exit(parserSyntaxError, "Graph is not finished, unexpected 'EOF'\n");

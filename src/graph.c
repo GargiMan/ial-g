@@ -85,7 +85,7 @@ void graph_destroy()
     }
     for (unsigned int i = 0; i < graph->node_count; i++)
     {
-        free(graph->nodes[i]->edge_nodes[i]);
+        free(graph->nodes[i]->edge_nodes);
         free(graph->nodes[i]);
     }
     free(graph->nodes);
@@ -123,8 +123,8 @@ void graph_create_edge(unsigned int nodeIndex, unsigned int node2Index)
         error_exit(graphNodeEdgeLoopError, "Node '%d' cannot have an edge to itself\n", nodeIndex);
     }
 
-    node_t *node = graph_get_node_by_index(nodeIndex);
-    node_t *node2 = graph_get_node_by_index(node2Index);
+    node_t *node = graph_get_node_by_index(nodeIndex - 1);
+    node_t *node2 = graph_get_node_by_index(node2Index - 1);
 
     for (unsigned int i = 0; i < node->edge_count; i++)
     {
