@@ -38,7 +38,7 @@ void timer_print()
  */
 void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
 {
-	// xor item with all items to detect if item is already in items array
+    // xor item with all items to detect if item is already in items array
 	for (unsigned int i = 0; i < *items_count; i++)
 	{
 		// item is already in items
@@ -48,10 +48,15 @@ void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
 		}
 	}
 
-	// item not found in items, add it
-	// item count has to be retyped to uint64_t to right memory access
-	items[(uint64_t)*items_count] = item;
-	(*items_count)++;
+    // Item not found in items, resize and add it
+    *items = realloc(*items, (*items_count + 1) * sizeof(uint64_t));
+    if (!*items)
+    {
+        // Handle memory allocation error
+        error_exit(internalError, "Memory allocation failed\n");
+    }
+    items[*items_count] = item;
+    (*items_count)++;
 }
 
 /**
@@ -64,24 +69,24 @@ void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
  */
 void deep_first_search(node_t *node, uint64_t *visited)
 {
-	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
+    uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
 
-	// if node is already visited, return visited nodes
-	if (current_node_bit & *visited)
-	{
-		return;
-	}
+    // if node is already visited, return visited nodes
+    if (current_node_bit & *visited)
+    {
+        return;
+    }
 
-	// mark node as visited
-	*visited |= current_node_bit;
+    // mark node as visited
+    *visited |= current_node_bit;
 
-	unsigned int node_edge_count = node_get_edge_count(node);
+    unsigned int node_edge_count = node_get_edge_count(node);
 
-	// go through all neighbors
-	for (unsigned int i = 0; i < node_edge_count; i++)
-	{
-		deep_first_search(node_get_edge_node_by_index(node, i), visited);
-	}
+    // go through all neighbors
+    for (unsigned int i = 0; i < node_edge_count; i++)
+    {
+        deep_first_search(node_get_edge_node_by_index(node, i), visited);
+    }
 }
 
 /**
@@ -129,7 +134,7 @@ unsigned int get_max_cycle_count(int n, int r)
  */
 void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t visited, unsigned int visited_count, uint64_t *cycles, unsigned int *cycles_count)
 {
-	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
+	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
 
 	// if node is already visited, return visited nodes
 	if (current_node_bit & visited)
@@ -166,40 +171,53 @@ void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t vis
  */
 void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
 {
-	uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
-
 	unsigned int node_edge_count = node_get_edge_count(node);
+	
+	uint64_t *current_node_bit = alloc(node_edge_count, sizeof(uint64_t));
 
 	// go through all neighbors
 	for (unsigned int i = 0; i < node_edge_count; i++)
 	{
-		uint64_t neighbor_node_bit = (uint64_t)1 << graph_get_node_index(node_get_edge_node_by_index(node, i));
-		array_add_item((current_node_bit | neighbor_node_bit), edges, edges_count);
+		uint64_t neighbor_node_bit = (uint64_t)1 << node_get_index(node_get_edge_node_by_index(node, i));
+		array_add_item((*current_node_bit | neighbor_node_bit), edges, edges_count);
 	}
+
+	free(current_node_bit);
 }
+
 
 /**
  * @brief deep-first search function to determine if the graph is continuous.
  *
  * Time complexity: O(|V|+|E|)
+ * @param graph a pointer to the graph structure
  * @return bool graph is connected
  */
 bool graph_is_connected()
 {
-	timer_start();
+    timer_start();
 
-	// use deep first search from first node
-	uint64_t visited = 0;
+    // Calculate the size of the bit array in terms of uint64_t
+    int array_size = graph_get_node_count(); 
 
-	deep_first_search(graph_get_node_by_index(0), &visited);
+    // Allocate memory for the visited bit array using *alloc function
+    uint64_t *visited = alloc(array_size, sizeof(uint64_t));
+	if (!visited) 
+	{
+		error_exit(internalError, "Memory allocation failed\n");
+	}
 
-	uint64_t all_visited = (1 << graph_get_node_count()) - 1;
+    deep_first_search(graph_get_node_by_index(0), visited);
 
-	bool result = (visited == all_visited);
+    uint64_t all_visited = ((uint64_t)1 << graph_get_node_count()) - 1;
 
-	timer_stop();
+    bool result = all_visited == *visited;
 
-	return result;
+    timer_stop();
+	
+    free(visited);
+
+    return result;
 }
 
 /**
@@ -227,6 +245,7 @@ bool graph_is_complete()
 	}
 
 	timer_stop();
+	
 	return true;
 }
 
@@ -285,34 +304,36 @@ unsigned int graph_get_edge_count()
 {
 	timer_start();
 
-	// max total edges for all nodes -> node_count * (node_count - 1) / 2
+    // max total edges for all nodes -> node_count * (node_count - 1) / 2
 
-	unsigned int node_count = graph_get_node_count();
-	unsigned int max_edges_count = node_count * (node_count - 1) / 2;
+    unsigned int node_count = graph_get_node_count();
+    unsigned int max_edges_count = node_count * (node_count - 1) / 2;
 
-	if (max_edges_count == 0)
-	{
-		return 0;
-	}
+    if (max_edges_count == 0)
+    {
+        return 0;
+    }
 
-	// array of edges, one edge is bit array of visited nodes
-	// 0 - not in edge, 1 - in edge
-	uint64_t edges[max_edges_count];
-	for (unsigned int i = 0; i < max_edges_count; i++)
-	{
-		edges[i] = 0;
-	}
+    // array of edges, one edge is bit array of visited nodes
+    // 0 - not in edge, 1 - in edge
+    uint64_t *edges = alloc(max_edges_count, sizeof(uint64_t));
+    if (!edges) 
+    {
+        error_exit(internalError, "Memory allocation failed\n");
+    }
 
-	unsigned int edges_count = 0;
+    unsigned int edges_count = 0;
 
-	for (unsigned int i = 0; (i < node_count) && (edges_count != max_edges_count); i++)
-	{
-		search_all_edges(graph_get_node_by_index(i), edges, &edges_count);
-	}
+    for (unsigned int i = 0; (i < node_count) && (edges_count != max_edges_count); i++)
+    {
+        search_all_edges(graph_get_node_by_index(i), edges, &edges_count);
+    }
 
-	timer_stop();
+    timer_stop();
 
-	return edges_count;
+    free(edges);
+
+    return edges_count;
 }
 
 /**
@@ -335,11 +356,11 @@ unsigned int graph_get_cycle_count()
 
 	// array of cycles, one cycle is bit array of visited nodes
 	// 0 - not in cycle, 1 - in cycle
-	uint64_t cycles[max_cycles_count];
-	for (unsigned int i = 0; i < max_cycles_count; i++)
-	{
-		cycles[i] = 0;
-	}
+	uint64_t *cycles = alloc(max_cycles_count, sizeof(uint64_t));
+    if (!cycles) 
+    {
+        error_exit(internalError, "Memory allocation failed\n");
+    }
 
 	unsigned int cycles_count = 0;
 
@@ -349,6 +370,8 @@ unsigned int graph_get_cycle_count()
 	}
 
 	timer_stop();
+
+	free(cycles);
 
 	return cycles_count;
 }
