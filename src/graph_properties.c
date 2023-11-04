@@ -30,6 +30,24 @@ void timer_print()
 	printf("\t\truntime: %fs\n", (double)(end - begin) / CLOCKS_PER_SEC);
 }
 
+void* mem_alloc(size_t num, size_t size) 
+{
+    void* ptr = malloc(num * size);
+    if (!ptr) {
+		error_exit(internalError, "Memory allocation failed\n");
+    }
+    return ptr;
+}
+
+void* mem_realloc(void* prevPtr, size_t size) 
+{
+    void* ptr = realloc(prevPtr, size);
+    if (!ptr) {
+        error_exit(internalError, "Memory reallocation failed\n");
+    }
+    return ptr;
+}
+
 /**
  * @brief Check if items array contains item, if not, add it.
  * @param item new item to check and add
@@ -38,7 +56,7 @@ void timer_print()
  */
 void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
 {
-    // xor item with all items to detect if item is already in items array
+	// xor item with all items to detect if item is already in items array
 	for (unsigned int i = 0; i < *items_count; i++)
 	{
 		// item is already in items
@@ -48,15 +66,10 @@ void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
 		}
 	}
 
-    // Item not found in items, resize and add it
-    *items = realloc(*items, (*items_count + 1) * sizeof(uint64_t));
-    if (!*items)
-    {
-        // Handle memory allocation error
-        error_exit(internalError, "Memory allocation failed\n");
-    }
-    items[*items_count] = item;
-    (*items_count)++;
+	// item not found in items, add it
+	// item count has to be retyped to uint64_t to right memory access
+	items[(uint64_t)*items_count] = item;
+	(*items_count)++;
 }
 
 /**
@@ -173,7 +186,7 @@ void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
 {
 	unsigned int node_edge_count = node_get_edge_count(node);
 	
-	uint64_t *current_node_bit = alloc(node_edge_count, sizeof(uint64_t));
+	uint64_t *current_node_bit = mem_alloc(node_edge_count, sizeof(uint64_t));
 
 	// go through all neighbors
 	for (unsigned int i = 0; i < node_edge_count; i++)
@@ -185,12 +198,10 @@ void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
 	free(current_node_bit);
 }
 
-
 /**
  * @brief deep-first search function to determine if the graph is continuous.
  *
  * Time complexity: O(|V|+|E|)
- * @param graph a pointer to the graph structure
  * @return bool graph is connected
  */
 bool graph_is_connected()
@@ -198,24 +209,21 @@ bool graph_is_connected()
     timer_start();
 
     // Calculate the size of the bit array in terms of uint64_t
-    int array_size = graph_get_node_count(); 
+    unsigned int array_size = graph_get_node_count(); 
 
     // Allocate memory for the visited bit array using *alloc function
-    uint64_t *visited = alloc(array_size, sizeof(uint64_t));
-	if (!visited) 
-	{
-		error_exit(internalError, "Memory allocation failed\n");
-	}
+    uint64_t *visited = mem_alloc(array_size, sizeof(uint64_t));
 
     deep_first_search(graph_get_node_by_index(0), visited);
 
-    uint64_t all_visited = ((uint64_t)1 << graph_get_node_count()) - 1;
+    uint64_t *all_visited = mem_alloc(array_size, sizeof(uint64_t));
 
-    bool result = all_visited == *visited;
+    bool result = all_visited == visited;
 
     timer_stop();
-	
+
     free(visited);
+	free(all_visited);
 
     return result;
 }
@@ -316,11 +324,7 @@ unsigned int graph_get_edge_count()
 
     // array of edges, one edge is bit array of visited nodes
     // 0 - not in edge, 1 - in edge
-    uint64_t *edges = alloc(max_edges_count, sizeof(uint64_t));
-    if (!edges) 
-    {
-        error_exit(internalError, "Memory allocation failed\n");
-    }
+    uint64_t *edges = mem_alloc(max_edges_count, sizeof(uint64_t));
 
     unsigned int edges_count = 0;
 
@@ -356,11 +360,7 @@ unsigned int graph_get_cycle_count()
 
 	// array of cycles, one cycle is bit array of visited nodes
 	// 0 - not in cycle, 1 - in cycle
-	uint64_t *cycles = alloc(max_cycles_count, sizeof(uint64_t));
-    if (!cycles) 
-    {
-        error_exit(internalError, "Memory allocation failed\n");
-    }
+	uint64_t *cycles = mem_alloc(max_cycles_count, sizeof(uint64_t));
 
 	unsigned int cycles_count = 0;
 
