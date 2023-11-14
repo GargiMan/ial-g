@@ -80,18 +80,18 @@ void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
  * @param node node to be searched
  * @param visited bit array of visited nodes
  */
-void deep_first_search(node_t *node, uint64_t *visited)
+void deep_first_search(node_t *node, bool *visited)
 {
-    uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
-
+    //uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
+	unsigned int current_node_index = graph_get_node_index(node);
     // if node is already visited, return visited nodes
-    if (current_node_bit & *visited)
+    if (visited[current_node_index])
     {
         return;
     }
 
     // mark node as visited
-    *visited |= current_node_bit;
+	visited[current_node_index] = true;
 
     unsigned int node_edge_count = node_get_edge_count(node);
 
@@ -145,17 +145,18 @@ unsigned int get_max_cycle_count(int n, int r)
  * @param cycles pointer to bit array with all cycles
  * @param cycles_count pointer to count of all cycles in array
  */
-void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t visited, unsigned int visited_count, uint64_t *cycles, unsigned int *cycles_count)
+void search_all_cycles(node_t *node, unsigned int start_node_index, bool *visited, unsigned int visited_count, uint64_t *cycles, unsigned int *cycles_count)
 {
-	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
+	unsigned int current_node_index = graph_get_node_index(node);
+	//uint64_t current_node_bit = (uint64_t)1 << graph_get_node_index(node);
 
 	// if node is already visited, return visited nodes
-	if (current_node_bit & visited)
+	if (visited[current_node_index])
 	{
-		uint64_t start_node_bit = (uint64_t)1 << start_node_index;
+		//uint64_t start_node_bit = (uint64_t)1 << start_node_index;
 
 		// cycle must be of at least 3 nodes
-		if ((current_node_bit & start_node_bit) && (visited_count > 2))
+		if (visited[start_node_index] && (visited_count > 2))
 		{
 			array_add_item(visited, cycles, cycles_count);
 		}
@@ -165,7 +166,7 @@ void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t vis
 	// increment nodes visited
 	visited_count++;
 	// mark node as visited
-	visited |= current_node_bit;
+	visited[current_node_index] = true;
 
 	unsigned int node_edge_count = node_get_edge_count(node);
 
@@ -191,7 +192,7 @@ void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
 	// go through all neighbors
 	for (unsigned int i = 0; i < node_edge_count; i++)
 	{
-		uint64_t neighbor_node_bit = (uint64_t)1 << node_get_index(node_get_edge_node_by_index(node, i));
+		uint64_t neighbor_node_bit = (uint64_t)1 << graph_get_node_index(node_get_edge_node_by_index(node, i));
 		array_add_item((*current_node_bit | neighbor_node_bit), edges, edges_count);
 	}
 
@@ -212,18 +213,28 @@ bool graph_is_connected()
     unsigned int array_size = graph_get_node_count(); 
 
     // Allocate memory for the visited bit array using *alloc function
-    uint64_t *visited = mem_alloc(array_size, sizeof(uint64_t));
+    bool *visited = (bool*)calloc(array_size, sizeof(bool)); //mem_alloc(array_size, sizeof(uint64_t));
+	if(!visited){
+		fprintf(stderr, "Memory allocation failed\n");
+	}
 
     deep_first_search(graph_get_node_by_index(0), visited);
 
-    uint64_t *all_visited = mem_alloc(array_size, sizeof(uint64_t));
+    //uint64_t *all_visited = mem_alloc(array_size, sizeof(uint64_t));
 
-    bool result = all_visited == visited;
+    //bool result = all_visited == visited;
+	bool result = true;
+	for(unsigned int i = 0; i < array_size; i++){
+		if(!visited[i]){
+			result = false;
+			break;
+		}
+	}
 
     timer_stop();
 
     free(visited);
-	free(all_visited);
+	//free(all_visited);
 
     return result;
 }
