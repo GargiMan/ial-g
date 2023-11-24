@@ -187,7 +187,7 @@ bool graph_is_connected()
         visited[i] = false;
     }
 
-    depth_first_search(graph_get_node_by_index(0), visited);
+    deep_first_search(graph_get_node_by_index(0), visited);
 
     for (unsigned int i = 0; i < node_count; i++)
     {
