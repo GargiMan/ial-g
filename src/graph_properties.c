@@ -67,7 +67,7 @@ void mem_free(void* ptr)
  * @param node node to be searched
  * @param visited bit array of visited nodes
  */
-void deep_first_search(node_t *node, uint64_t *visited)
+void deep_first_search(node_t *node, bool *visited)
 {
     unsigned int node_index = node_get_index(node);
 
