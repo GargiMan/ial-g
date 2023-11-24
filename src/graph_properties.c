@@ -82,7 +82,7 @@ void deep_first_search(node_t *node, uint64_t *visited)
 
         if (!visited[neighbor_index])
         {
-            depth_first_search(neighbor, visited);
+            deep_first_search(neighbor, visited);
         }
     }
 }
