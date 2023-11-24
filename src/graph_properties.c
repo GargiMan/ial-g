@@ -30,28 +30,33 @@ void timer_print()
 	printf("\t\truntime: %fs\n", (double)(end - begin) / CLOCKS_PER_SEC);
 }
 
-/**
- * @brief Check if items array contains item, if not, add it.
- * @param item new item to check and add
- * @param items pointer to array with all items
- * @param items_count pointer to items count in array
- */
-void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
+void* mem_alloc(size_t num, size_t size) 
 {
-	// xor item with all items to detect if item is already in items array
-	for (unsigned int i = 0; i < *items_count; i++)
-	{
-		// item is already in items
-		if ((item ^ items[i]) == 0)
-		{
-			return;
-		}
-	}
+    void* ptr = malloc(num * size);
+    if (!ptr) {
+		return NULL;
+    }
+    return ptr;
+}
 
-	// item not found in items, add it
-	// item count has to be retyped to uint64_t to right memory access
-	items[(uint64_t)*items_count] = item;
-	(*items_count)++;
+void* mem_realloc(void* prevPtr, size_t size) 
+{
+    void* ptr = realloc(prevPtr, size);
+    if (!ptr) {
+        return NULL;
+    }
+    return ptr;
+}
+
+void array_free(bool **items)
+{
+    free(*items);
+    *items = NULL;
+}
+
+void mem_free(void* ptr) 
+{
+    free(ptr);
 }
 
 /**
@@ -64,25 +69,24 @@ void array_add_item(uint64_t item, uint64_t *items, unsigned int *items_count)
  */
 void deep_first_search(node_t *node, uint64_t *visited)
 {
-	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
+    unsigned int node_index = node_get_index(node);
 
-	// if node is already visited, return visited nodes
-	if (current_node_bit & *visited)
-	{
-		return;
-	}
+    // Mark the current node as visited
+    visited[node_index] = true;
 
-	// mark node as visited
-	*visited |= current_node_bit;
+    // Explore all unvisited neighbors
+    for (unsigned int i = 0; i < node_get_edge_count(node); i++)
+    {
+        node_t *neighbor = node_get_edge_node_by_index(node, i);
+        unsigned int neighbor_index = node_get_index(neighbor);
 
-	unsigned int node_edge_count = node_get_edge_count(node);
-
-	// go through all neighbors
-	for (unsigned int i = 0; i < node_edge_count; i++)
-	{
-		deep_first_search(node_get_edge_node_by_index(node, i), visited);
-	}
+        if (!visited[neighbor_index])
+        {
+            depth_first_search(neighbor, visited);
+        }
+    }
 }
+
 
 /**
  * @brief Get factorial of a number
@@ -127,55 +131,42 @@ unsigned int get_max_cycle_count(int n, int r)
  * @param cycles pointer to bit array with all cycles
  * @param cycles_count pointer to count of all cycles in array
  */
-void search_all_cycles(node_t *node, unsigned int start_node_index, uint64_t visited, unsigned int visited_count, uint64_t *cycles, unsigned int *cycles_count)
+void search_all_cycles(node_t *node, unsigned int start_node_index, bool *visited, unsigned int visited_count, bool **cycles, unsigned int *cycles_count, unsigned int node_count)
 {
-	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
+	unsigned int node_index = node_get_index(node);
 
-	// if node is already visited, return visited nodes
-	if (current_node_bit & visited)
-	{
-		uint64_t start_node_bit = (uint64_t)1 << start_node_index;
+    if (visited[node_index]) {
+        if (node_index == start_node_index && visited_count >= 3) {
+            for (unsigned int i = 0; i < *cycles_count; i++) {
+                bool is_same_cycle = true;
+                for (unsigned int j = 0; j < node_count; j++) {
+                    if (cycles[i][j] != visited[j]) {
+                        is_same_cycle = false;
+                        break;
+                    }
+                }
+                if (is_same_cycle) {
+                    return; 
+                }
+            }
 
-		// cycle must be of at least 3 nodes
-		if ((current_node_bit & start_node_bit) && (visited_count > 2))
-		{
-			array_add_item(visited, cycles, cycles_count);
-		}
-		return;
-	}
+            cycles[*cycles_count] = malloc(node_count * sizeof(bool));
+            for (unsigned int i = 0; i < node_count; i++) {
+                cycles[*cycles_count][i] = visited[i];
+            }
+            (*cycles_count)++;
+        }
+        return;
+    }
 
-	// increment nodes visited
-	visited_count++;
-	// mark node as visited
-	visited |= current_node_bit;
+    visited[node_index] = true;
+    visited_count++;
 
-	unsigned int node_edge_count = node_get_edge_count(node);
+    for (unsigned int i = 0; i < node_get_edge_count(node); i++) {
+        search_all_cycles(node_get_edge_node_by_index(node, i), start_node_index, visited, visited_count, cycles, cycles_count, node_count);
+    }
 
-	// go through all neighbors
-	for (unsigned int i = 0; i < node_edge_count; i++)
-	{
-		search_all_cycles(node_get_edge_node_by_index(node, i), start_node_index, visited, visited_count, cycles, cycles_count);
-	}
-}
-
-/**
- * @brief Get all edges in graph
- * @param node node to be searched
- * @param edges pointer to bit array with all edges
- * @param edges_count pointer to count of all edges in array
- */
-void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
-{
-	uint64_t current_node_bit = (uint64_t)1 << node_get_index(node);
-
-	unsigned int node_edge_count = node_get_edge_count(node);
-
-	// go through all neighbors
-	for (unsigned int i = 0; i < node_edge_count; i++)
-	{
-		uint64_t neighbor_node_bit = (uint64_t)1 << node_get_index(node_get_edge_node_by_index(node, i));
-		array_add_item((current_node_bit | neighbor_node_bit), edges, edges_count);
-	}
+    visited[node_index] = false;
 }
 
 /**
@@ -186,20 +177,32 @@ void search_all_edges(node_t *node, uint64_t *edges, unsigned int *edges_count)
  */
 bool graph_is_connected()
 {
-	timer_start();
+    timer_start();
 
-	// use deep first search from first node
-	uint64_t visited = 0;
+    unsigned int node_count = graph_get_node_count();
+    bool *visited = mem_alloc(node_count, sizeof(bool));
 
-	deep_first_search(graph_get_node_by_index(0), &visited);
+    for (unsigned int i = 0; i < node_count; i++)
+    {
+        visited[i] = false;
+    }
 
-	uint64_t all_visited = (1 << graph_get_node_count()) - 1;
+    depth_first_search(graph_get_node_by_index(0), visited);
 
-	bool result = (visited == all_visited);
+    for (unsigned int i = 0; i < node_count; i++)
+    {
+        if (!visited[i])
+        {
+            timer_stop();
+            array_free(&visited);
+            return false;
+        }
+    }
 
-	timer_stop();
+    timer_stop();
+    array_free(&visited);
 
-	return result;
+    return true;
 }
 
 /**
@@ -285,34 +288,40 @@ unsigned int graph_get_edge_count()
 {
 	timer_start();
 
-	// max total edges for all nodes -> node_count * (node_count - 1) / 2
-
 	unsigned int node_count = graph_get_node_count();
-	unsigned int max_edges_count = node_count * (node_count - 1) / 2;
-
-	if (max_edges_count == 0)
-	{
-		return 0;
-	}
-
-	// array of edges, one edge is bit array of visited nodes
-	// 0 - not in edge, 1 - in edge
-	uint64_t edges[max_edges_count];
-	for (unsigned int i = 0; i < max_edges_count; i++)
-	{
-		edges[i] = 0;
-	}
-
 	unsigned int edges_count = 0;
 
-	for (unsigned int i = 0; (i < node_count) && (edges_count != max_edges_count); i++)
+	bool *edges = (bool *)mem_alloc(node_count * node_count, sizeof(bool));
+	if (edges == NULL) 
+		return 0;
+	
+
+	for (unsigned int i = 0; i < node_count * node_count; ++i) 
+		edges[i] = false;
+
+	for (unsigned int i = 0; i < node_count; ++i) 
 	{
-		search_all_edges(graph_get_node_by_index(i), edges, &edges_count);
+		node_t *node = graph_get_node_by_index(i);
+		unsigned int node_edge_count = node_get_edge_count(node);
+
+		for (unsigned int j = 0; j < node_edge_count; ++j) 
+		{
+        		node_t *neighbour = node_get_edge_node_by_index(node, j);
+			unsigned int neighbour_index = node_get_index(neighbour);
+			unsigned int edge_index = i * node_count + neighbour_index;
+            
+        		if (!edges[edge_index]) 
+			{
+        		edges[edge_index] = true;
+        		edges_count++;
+        		}
+		}
 	}
 
-	timer_stop();
+    	mem_free(edges);
 
-	return edges_count;
+    	timer_stop();
+    	return edges_count / 2;
 }
 
 /**
@@ -326,27 +335,29 @@ unsigned int graph_get_cycle_count()
 	timer_start();
 
 	unsigned int node_count = graph_get_node_count();
-	unsigned int max_cycles_count = get_max_cycle_count(node_count, node_count);
+    	unsigned int max_cycles_count = get_max_cycle_count(node_count, node_count);
 
 	if (max_cycles_count == 0)
-	{
 		return 0;
-	}
+	
 
-	// array of cycles, one cycle is bit array of visited nodes
-	// 0 - not in cycle, 1 - in cycle
-	uint64_t cycles[max_cycles_count];
-	for (unsigned int i = 0; i < max_cycles_count; i++)
-	{
-		cycles[i] = 0;
-	}
+    	bool *visited = mem_alloc(node_count, sizeof(bool));
+    	bool **cycles = mem_alloc(max_cycles_count, sizeof(bool *));
 
-	unsigned int cycles_count = 0;
+    	for (unsigned int i = 0; i < max_cycles_count; i++) 
+        	cycles[i] = NULL;
+    
+    	unsigned int cycles_count = 0;
+	
+    	for (unsigned int i = 0; i < node_count; i++) 
+        	search_all_cycles(graph_get_node_by_index(i), i, visited, 0, cycles, &cycles_count, node_count);
+    
 
-	for (unsigned int i = 0; (i < node_count) && (cycles_count != max_cycles_count); i++)
-	{
-		search_all_cycles(graph_get_node_by_index(i), i, 0, 0, cycles, &cycles_count);
-	}
+    	for (unsigned int i = 0; i < cycles_count; i++) 
+        	free(cycles[i]);
+    
+    	mem_free(cycles);
+    	mem_free(visited);
 
 	timer_stop();
 
