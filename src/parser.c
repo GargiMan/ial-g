@@ -69,10 +69,12 @@ void parse_data(FILE *stream)
                     error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, columns);
                     break;
             }
+
+            get_char();
         }
 
         // Skips characters above main diagonal
-        while (get_char() != '\n' && last_char != EOF);
+        while (last_char != '\n' && last_char != EOF) get_char();
         
         lines++;
     }

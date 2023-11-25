@@ -8,7 +8,7 @@ CCFLAGS := -g -O0 -Wall -Wextra -std=c17 -pedantic
 SRC_FILES := src/main.c src/error.c src/parser.c src/graph.c src/graph_properties.c
 TEST_FILES := $(wildcard testData/*)
 
-.PHONY: all run run-test clean zip
+.PHONY: all run test clean zip
 
 all: $(PROG_NAME)
 
@@ -18,7 +18,7 @@ $(PROG_NAME): $(SRC_FILES)
 run:
 	./$(PROG_NAME)
 
-run-test:
+test:
 	@for graph in $(TEST_FILES); do printf "$${graph}\n"; ./$(PROG_NAME) < $${graph}; printf "\n"; done
 
 clean:
