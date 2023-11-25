@@ -229,17 +229,16 @@ unsigned int graph_get_edge_count() {
 unsigned int graph_get_cycle_count() {
 	timer_start();
 
-	double node_count = graph_get_node_count();
+	unsigned int node_count = graph_get_node_count();
+	unsigned int cycles_count = 0;
 
-    unsigned int cycles_count = 0;
-
-	for (unsigned int cycle_len = 3; cycle_len <= node_count; cycle_len++) {
+	for (unsigned int cycle_len = node_count; cycle_len > 2; cycle_len--) {
 
 		bool *visited = mem_alloc(node_count, sizeof(bool));
 		memset(visited, 0, node_count * sizeof(bool));
 
 		unsigned int cycles_count_for_len = 0;
-		for (unsigned int i = 1; i <= (node_count - (cycle_len - 1)); i++) {
+		for (unsigned int i = 1; i <= node_count - cycle_len + 1; i++) {
 			depth_first_search_cycle(visited, cycle_len - 1, i, i, &cycles_count_for_len);
 			visited[i - 1] = true;
 		}
