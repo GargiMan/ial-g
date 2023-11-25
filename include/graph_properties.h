@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "graph.h"
+#include "error.h"
 
 #ifdef __cplusplus
 extern "C"

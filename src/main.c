@@ -16,8 +16,7 @@
 /**
  * @brief Print program help message
  */
-void print_help()
-{
+void print_help() {
     printf("Program reads unoriented graph from stdin and analyze and print it's properties to stdout in formated output\n");
     printf("This help message is printed when program run contains argument.\n");
     printf("Run example (from project dir): ./graph_properties < testData/graphComplete\n");
@@ -27,10 +26,8 @@ void print_help()
  * @brief Program reads unoriented graph from stdin and analyze it's properties
  * @return int exit code
  */
-int main(int argc, char *argv[])
-{
-    if (argc > 1)
-    {
+int main(int argc, char *argv[]) {
+    if (argc > 1) {
         // ignore unused parameter warning
         (void)argv;
 

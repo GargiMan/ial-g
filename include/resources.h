@@ -15,8 +15,7 @@
 #include "graph.h"
 
 #define FREE_RESOURCES   \
-    do                   \
-    {                    \
+    do {                 \
         graph_destroy(); \
     } while (0)
 

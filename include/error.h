@@ -20,8 +20,7 @@
 extern "C"
 {
 #endif
-    typedef enum errorCodes
-    {
+    typedef enum errorCodes {
         parserSyntaxError = 1,
         parserNodeCountZeroError = 2,
         parserNodeCountOverflowError = 3,

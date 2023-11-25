@@ -34,40 +34,20 @@ void* mem_alloc(size_t num, size_t size)
 {
     void* ptr = malloc(num * size);
     if (!ptr) {
-		return NULL;
+    	error_exit(internalError, "Memory allocation failed\n");
     }
     return ptr;
-}
-
-void* mem_realloc(void* prevPtr, size_t size) 
-{
-    void* ptr = realloc(prevPtr, size);
-    if (!ptr) {
-        return NULL;
-    }
-    return ptr;
-}
-
-void array_free(bool **items)
-{
-    free(*items);
-    *items = NULL;
-}
-
-void mem_free(void* ptr) 
-{
-    free(ptr);
 }
 
 /**
- * @brief deep first search function
+ * @brief Depth first search function
  *  It goes through all neighbors of the inserted nodes,
  *  if any of them has already been checked, it skips,
- *  otherwise the selected one is called recursively until all nodes are checked.
+ *  otherwise the selected one is called recursively until all nodes are checked
  * @param node node to be searched
  * @param visited bit array of visited nodes
  */
-void deep_first_search(node_t *node, bool *visited)
+void depth_first_search(node_t *node, bool *visited)
 {
     unsigned int node_index = node_get_index(node);
 
@@ -82,137 +62,85 @@ void deep_first_search(node_t *node, bool *visited)
 
         if (!visited[neighbor_index])
         {
-            deep_first_search(neighbor, visited);
+            depth_first_search(neighbor, visited);
         }
     }
 }
 
-
 /**
- * @brief Get factorial of a number
- * @param n number to get factorial of
- * @return unsigned int result of factorial
- */
-unsigned int fact(int n)
-{
-	if (n < 2)
-	{
-		return 1;
-	}
-
-	return n * fact(n - 1);
-}
-
-/**
- * @brief Get the max cycle count
- * @param n node count
- * @param r max size of cycle
- * @return unsigned int max cycle count
- */
-unsigned int get_max_cycle_count(int n, int r)
-{
-	// minimal cycle size is 3
-	if (r < 3 || n < 3)
-	{
-		return 0;
-	}
-
-	// cycle count (r nodes in cycle of n nodes)  n!/((n-r)!*r!)
-	// recursive (cycle count for r size) + (cycle count for r-1 size) + ...
-	return (fact(n) / (fact(n - r) * fact(r))) + get_max_cycle_count(n, r - 1);
-}
-
-/**
- * @brief Get all cycles in graph with deep search
- * @param node node to be searched
- * @param start_node_index index of start node
+ * @brief Get all cycles in graph with depth first search
  * @param visited visited nodes bit array
- * @param visited_count count of visited nodes
- * @param cycles pointer to bit array with all cycles
- * @param cycles_count pointer to count of all cycles in array
+ * @param cycle_len_remaining cycle length remaining to search
+ * @param node_index current node index
+ * @param cycle_start_node_index cycle start node index
+ * @param cycle_count pointer to count of all cycles of specific length
  */
-void search_all_cycles(node_t *node, unsigned int start_node_index, bool *visited, unsigned int visited_count, bool **cycles, unsigned int *cycles_count, unsigned int node_count)
-{
-	unsigned int node_index = node_get_index(node);
+void depth_first_search_cycle(bool* visited, unsigned int cycle_len_remaining, unsigned int node_index, unsigned int cycle_start_node_index, unsigned int* cycle_count) {
+	visited[node_index - 1] = true;
+	node_t *node = graph_get_node_by_index(node_index);
 
-    if (visited[node_index]) {
-        if (node_index == start_node_index && visited_count >= 3) {
-            for (unsigned int i = 0; i < *cycles_count; i++) {
-                bool is_same_cycle = true;
-                for (unsigned int j = 0; j < node_count; j++) {
-                    if (cycles[i][j] != visited[j]) {
-                        is_same_cycle = false;
-                        break;
-                    }
-                }
-                if (is_same_cycle) {
-                    return; 
-                }
-            }
+	if (cycle_len_remaining == 0) {
+		visited[node_index - 1] = false;
 
-            cycles[*cycles_count] = malloc(node_count * sizeof(bool));
-            for (unsigned int i = 0; i < node_count; i++) {
-                cycles[*cycles_count][i] = visited[i];
-            }
-            (*cycles_count)++;
-        }
-        return;
-    }
+		// check if node is connected to cycle start node
+		for (unsigned int i = 0; i < node_get_edge_count(node); i++) {
+			if (node_get_index(node_get_edge_node_by_index(node, i)) == cycle_start_node_index) {
+				(*cycle_count)++;
+				return;
+			}
+		}
+		return;
+	}
 
-    visited[node_index] = true;
-    visited_count++;
+	// search for next node
+	for (unsigned int i = 0; i < node_get_edge_count(node); i++) {
+		node_t *edge_node = node_get_edge_node_by_index(node, i);
+		unsigned int edge_node_index = node_get_index(edge_node);
 
-    for (unsigned int i = 0; i < node_get_edge_count(node); i++) {
-        search_all_cycles(node_get_edge_node_by_index(node, i), start_node_index, visited, visited_count, cycles, cycles_count, node_count);
-    }
+		if (!visited[edge_node_index - 1]) {
+			depth_first_search_cycle(visited, cycle_len_remaining - 1, edge_node_index, cycle_start_node_index, cycle_count);
+		}
+	}
 
-    visited[node_index] = false;
+	// reset node visit for next cycle
+	visited[node_index - 1] = false;
 }
 
 /**
- * @brief deep-first search function to determine if the graph is continuous.
+ * @brief deep-first search function to determine if the graph is continuous
  *
  * Time complexity: O(|V|+|E|)
  * @return bool graph is connected
  */
-bool graph_is_connected()
-{
+bool graph_is_connected() {
     timer_start();
 
     unsigned int node_count = graph_get_node_count();
     bool *visited = mem_alloc(node_count, sizeof(bool));
+	memset(visited, 0, node_count * sizeof(bool));
 
-    for (unsigned int i = 0; i < node_count; i++)
-    {
-        visited[i] = false;
-    }
+    depth_first_search(graph_get_node_by_index(1), visited);
 
-    deep_first_search(graph_get_node_by_index(0), visited);
-
-    for (unsigned int i = 0; i < node_count; i++)
-    {
-        if (!visited[i])
-        {
+    for (unsigned int i = 0; i < node_count; i++) {
+        if (!visited[i]) {
             timer_stop();
-            array_free(&visited);
+            free(visited);
             return false;
         }
     }
 
     timer_stop();
-    array_free(&visited);
-
+    free(visited);
     return true;
 }
 
 /**
- * @brief Loops through all nodes, compares the number of vertices, compares with the completeness condition.
+ * @brief Loops through all nodes, compares the number of vertices, compares with the completeness condition
  *
  * Time complexity: O(|V|)
  * @return bool graph is complete
  */
-bool graph_is_complete()
-{
+bool graph_is_complete() {
 	timer_start();
 
 	// max edges for one node -> node_count - 1
@@ -220,10 +148,8 @@ bool graph_is_complete()
 	unsigned int node_count = graph_get_node_count();
 	unsigned int max_node_edge_count = node_count - 1;
 
-	for (unsigned int i = 0; i < node_count; i++)
-	{
-		if (node_get_edge_count(graph_get_node_by_index(i)) != max_node_edge_count)
-		{
+	for (unsigned int i = 1; i <= node_count; i++) {
+		if (node_get_edge_count(graph_get_node_by_index(i)) != max_node_edge_count) {
 			timer_stop();
 			return false;
 		}
@@ -234,24 +160,21 @@ bool graph_is_complete()
 }
 
 /**
- * @brief Loops through all nodes, compares each vertex count, compares and selects the largest vertex.
+ * @brief Loops through all nodes, compares each vertex count, compares and selects the largest vertex
  *
  * Time complexity: O(|V|)
  * @return unsigned int return the maximum degree (or valence) of the vertex of the graph
  */
-unsigned int graph_get_max_degree()
-{
+unsigned int graph_get_max_degree() {
 	timer_start();
 
 	unsigned int max = 0;
 	unsigned int node_count = graph_get_node_count();
 
-	for (unsigned int i = 0; i < node_count; i++)
-	{
+	for (unsigned int i = 1; i <= node_count; i++) {
 		unsigned int edge_count = node_get_edge_count(graph_get_node_by_index(i));
 
-		if (max < edge_count)
-		{
+		if (max < edge_count) {
 			max = edge_count;
 		}
 	}
@@ -267,8 +190,7 @@ unsigned int graph_get_max_degree()
  * Time complexity: O(1)
  * @return unsigned int
  */
-unsigned int graph_get_node_count_wt()
-{
+unsigned int graph_get_node_count_wt() {
 	timer_start();
 
 	unsigned int result = graph_get_node_count();
@@ -279,85 +201,53 @@ unsigned int graph_get_node_count_wt()
 }
 
 /**
- * @brief Get edges count of graph with deep search.
+ * @brief Get edges count of graph with deep search
  *
  * Time complexity: O(|V|+|E|)
  * @return unsigned int total edge count
  */
-unsigned int graph_get_edge_count()
-{
+unsigned int graph_get_edge_count() {
 	timer_start();
 
 	unsigned int node_count = graph_get_node_count();
 	unsigned int edges_count = 0;
 
-	bool *edges = (bool *)mem_alloc(node_count * node_count, sizeof(bool));
-	if (edges == NULL) 
-		return 0;
-	
-
-	for (unsigned int i = 0; i < node_count * node_count; ++i) 
-		edges[i] = false;
-
-	for (unsigned int i = 0; i < node_count; ++i) 
-	{
-		node_t *node = graph_get_node_by_index(i);
-		unsigned int node_edge_count = node_get_edge_count(node);
-
-		for (unsigned int j = 0; j < node_edge_count; ++j) 
-		{
-        		node_t *neighbour = node_get_edge_node_by_index(node, j);
-			unsigned int neighbour_index = node_get_index(neighbour);
-			unsigned int edge_index = i * node_count + neighbour_index;
-            
-        		if (!edges[edge_index]) 
-			{
-        		edges[edge_index] = true;
-        		edges_count++;
-        		}
-		}
+	for (unsigned int i = 1; i <= node_count; ++i) {
+		edges_count += node_get_edge_count(graph_get_node_by_index(i));
 	}
 
-    	mem_free(edges);
-
-    	timer_stop();
-    	return edges_count / 2;
+    timer_stop();
+    return edges_count / 2;
 }
 
 /**
- * @brief Get cycle count of graph with deep search.
+ * @brief Get cycle count of graph with deep search
  *
  * Time complexity: O(|V|+|E|)
  * @return unsigned int total cycle count
  */
-unsigned int graph_get_cycle_count()
-{
+unsigned int graph_get_cycle_count() {
 	timer_start();
 
-	unsigned int node_count = graph_get_node_count();
-    	unsigned int max_cycles_count = get_max_cycle_count(node_count, node_count);
+	double node_count = graph_get_node_count();
 
-	if (max_cycles_count == 0)
-		return 0;
-	
+    unsigned int cycles_count = 0;
 
-    	bool *visited = mem_alloc(node_count, sizeof(bool));
-    	bool **cycles = mem_alloc(max_cycles_count, sizeof(bool *));
+	for (unsigned int cycle_len = 3; cycle_len <= node_count; cycle_len++) {
 
-    	for (unsigned int i = 0; i < max_cycles_count; i++) 
-        	cycles[i] = NULL;
-    
-    	unsigned int cycles_count = 0;
-	
-    	for (unsigned int i = 0; i < node_count; i++) 
-        	search_all_cycles(graph_get_node_by_index(i), i, visited, 0, cycles, &cycles_count, node_count);
-    
+		bool *visited = mem_alloc(node_count, sizeof(bool));
+		memset(visited, 0, node_count * sizeof(bool));
 
-    	for (unsigned int i = 0; i < cycles_count; i++) 
-        	free(cycles[i]);
-    
-    	mem_free(cycles);
-    	mem_free(visited);
+		unsigned int cycles_count_for_len = 0;
+		for (unsigned int i = 1; i <= (node_count - (cycle_len - 1)); i++) {
+			depth_first_search_cycle(visited, cycle_len - 1, i, i, &cycles_count_for_len);
+			visited[i - 1] = true;
+		}
+		//cycles_count_for_len is doubled because of undirected graph
+		cycles_count += cycles_count_for_len / 2;
+
+		free(visited);
+	}
 
 	timer_stop();
 
@@ -365,13 +255,12 @@ unsigned int graph_get_cycle_count()
 }
 
 /**
- * @brief Graph is a tree if it has no cycles and is connected.
+ * @brief Graph is a tree if it has no cycles and is connected
  *
  * Time complexity: O(|V|+|E|)
  * @return bool graph is tree
  */
-bool graph_is_tree()
-{
+bool graph_is_tree() {
 	timer_start();
 
 	bool result = graph_get_cycle_count() == 0 && graph_is_connected();
@@ -382,13 +271,12 @@ bool graph_is_tree()
 }
 
 /**
- * @brief Graph is forest if it has no cycles and is not connected.
+ * @brief Graph is forest if it has no cycles and is not connected
  *
  * Time complexity: O(|V|+|E|)
  * @return bool graph is forest
  */
-bool graph_is_forest()
-{
+bool graph_is_forest() {
 	timer_start();
 
 	bool result = graph_get_cycle_count() == 0 && !graph_is_connected();
@@ -401,25 +289,23 @@ bool graph_is_forest()
 /**
  * @brief analyze graph properties and print them
  */
-void graph_analyze_properties()
-{
-
+void graph_analyze_properties() {
 	printf("===========================================================\n");
-	printf("Node count:\t\t %d", graph_get_node_count_wt());
+	printf("Node count:        \t %d", graph_get_node_count_wt());
 	timer_print();
-	printf("Edge count:\t\t %d", graph_get_edge_count());
+	printf("Edge count:        \t %d", graph_get_edge_count());
 	timer_print();
-	printf("Cycle count:\t\t %d", graph_get_cycle_count());
+	printf("Cycle count:       \t %d", graph_get_cycle_count());
 	timer_print();
-	printf("Maximum degree:\t\t %d", graph_get_max_degree());
+	printf("Maximum degree:    \t %d", graph_get_max_degree());
 	timer_print();
 	printf("Graph is connected:\t %s", graph_is_connected() ? "yes" : "no");
 	timer_print();
-	printf("Graph is complete:\t %s", graph_is_complete() ? "yes" : "no");
+	printf("Graph is complete: \t %s", graph_is_complete() ? "yes" : "no");
 	timer_print();
-	printf("Graph is tree:\t\t %s", graph_is_tree() ? "yes" : "no");
+	printf("Graph is tree:     \t %s", graph_is_tree() ? "yes" : "no");
 	timer_print();
-	printf("Graph is forest\t\t %s", graph_is_forest() ? "yes" : "no");
+	printf("Graph is forest    \t %s", graph_is_forest() ? "yes" : "no");
 	timer_print();
 	printf("===========================================================\n");
 }

@@ -24,8 +24,7 @@ char last_char;
  * @brief Get the char from saved stream
  * @return char from stream
  */
-char get_char() 
-{
+char get_char() {
     return (last_char = fgetc(stream_s));
 }
 
@@ -33,18 +32,15 @@ char get_char()
  * @brief Function reads graph data from stream and parse them to graph sctructure
  * @param stream data input stream
  */
-void parse_data(FILE *stream)
-{
+void parse_data(FILE *stream) {
     graph_init();
 
     stream_s = stream;
 
-    while (get_char() != EOF)
-    {
+    while (get_char() != EOF) {
         graph_create_node(lines);
 
-        for (columns = 1; columns < lines; columns++)
-        {
+        for (columns = 1; columns < lines; columns++) {
             // Skips spaces
             while (last_char == ' ') get_char();
 
@@ -52,8 +48,7 @@ void parse_data(FILE *stream)
                 error_exit(parserSyntaxError, "Unexpected '%c' at position %i:%i\n", last_char, lines, columns);
             }
 
-            switch (last_char)
-            {
+            switch (last_char) {
                 case ' ':
                     columns--;
                     break;
@@ -79,8 +74,7 @@ void parse_data(FILE *stream)
         lines++;
     }
 
-    if (lines == 1 && last_char == EOF)
-    {
+    if (lines == 1 && last_char == EOF) {
         error_exit(parserSyntaxError, "Graph is empty\n");
     }
 }

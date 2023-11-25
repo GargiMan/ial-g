@@ -18,8 +18,7 @@
  * @param msg message to print
  * @param ... message arguments
  */
-void error_exit(errorCodes_t errcode, char *msg, ...)
-{
+void error_exit(errorCodes_t errcode, char *msg, ...) {
     fflush(stdout);
     fflush(stderr);
     va_list args;
@@ -37,8 +36,7 @@ void error_exit(errorCodes_t errcode, char *msg, ...)
  * @param msg message to print
  * @param ... message arguments
  */
-void warning_print(char *msg, ...)
-{
+void warning_print(char *msg, ...) {
     fflush(stdout);
     fflush(stderr);
     va_list args;
