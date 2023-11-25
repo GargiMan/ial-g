@@ -52,7 +52,7 @@ void depth_first_search(node_t *node, bool *visited)
     unsigned int node_index = node_get_index(node);
 
     // Mark the current node as visited
-    visited[node_index] = true;
+    visited[node_index - 1] = true;
 
     // Explore all unvisited neighbors
     for (unsigned int i = 0; i < node_get_edge_count(node); i++)
@@ -60,7 +60,7 @@ void depth_first_search(node_t *node, bool *visited)
         node_t *neighbor = node_get_edge_node_by_index(node, i);
         unsigned int neighbor_index = node_get_index(neighbor);
 
-        if (!visited[neighbor_index])
+        if (!visited[neighbor_index - 1])
         {
             depth_first_search(neighbor, visited);
         }
