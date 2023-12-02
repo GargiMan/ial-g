@@ -39,6 +39,29 @@ void* mem_alloc(size_t num, size_t size)
     return ptr;
 }
 
+int compare(const void * a, const void * b) {
+	return (*(unsigned int*)a - *(unsigned int*)b);
+}
+
+void normalize_cycle(unsigned int* cycle, unsigned int path_len) {
+    unsigned int min_index = 0;
+
+    for (unsigned int i = 1; i < path_len; i++) {
+        if (cycle[i] < cycle[min_index]) {
+            min_index = i;
+        }
+    }
+
+    unsigned int* tmp = mem_alloc(path_len, sizeof(unsigned int));
+    memcpy(tmp, cycle, path_len * sizeof(unsigned int));
+
+    for (unsigned int i = 0; i < path_len; i++) {
+        cycle[i] = tmp[(min_index + i) % path_len];
+    }
+
+    free(tmp);
+}
+
 /**
  * @brief Depth first search function
  *  It goes through all neighbors of the inserted nodes,
@@ -75,35 +98,49 @@ void depth_first_search(node_t *node, bool *visited)
  * @param cycle_start_node_index cycle start node index
  * @param cycle_count pointer to count of all cycles of specific length
  */
-void depth_first_search_cycle(bool* visited, unsigned int cycle_len_remaining, unsigned int node_index, unsigned int cycle_start_node_index, unsigned int* cycle_count) {
-	visited[node_index - 1] = true;
-	node_t *node = graph_get_node_by_index(node_index);
+void depth_first_search_cycle(bool* visited, unsigned int* path, unsigned int path_len, unsigned int node_index, unsigned int cycle_start_node_index, unsigned int* cycle_count, unsigned int node_count, unsigned int** unique_cycles) {
+    visited[node_index - 1] = true;
+    path[path_len] = node_index;
 
-	if (cycle_len_remaining == 0) {
-		visited[node_index - 1] = false;
+    for (unsigned int i = 0; i < node_get_edge_count(graph_get_node_by_index(node_index)); i++) {
+        node_t* neighbor = node_get_edge_node_by_index(graph_get_node_by_index(node_index), i);
+        unsigned int neighbor_index = node_get_index(neighbor);
 
-		// check if node is connected to cycle start node
-		for (unsigned int i = 0; i < node_get_edge_count(node); i++) {
-			if (node_get_index(node_get_edge_node_by_index(node, i)) == cycle_start_node_index) {
-				(*cycle_count)++;
-				return;
-			}
-		}
-		return;
-	}
+        if (visited[neighbor_index - 1]) {
+            if (neighbor_index == cycle_start_node_index && path_len >= 2) {
+                unsigned int* cycle = mem_alloc(path_len + 1, sizeof(unsigned int));
+                memcpy(cycle, path, (path_len + 1) * sizeof(unsigned int));
+                qsort(cycle, path_len + 1, sizeof(unsigned int), compare);
 
-	// search for next node
-	for (unsigned int i = 0; i < node_get_edge_count(node); i++) {
-		node_t *edge_node = node_get_edge_node_by_index(node, i);
-		unsigned int edge_node_index = node_get_index(edge_node);
+                bool is_unique = true;
 
-		if (!visited[edge_node_index - 1]) {
-			depth_first_search_cycle(visited, cycle_len_remaining - 1, edge_node_index, cycle_start_node_index, cycle_count);
-		}
-	}
+                for (unsigned int i = 0; i < *cycle_count; i++) {
+                    if (memcmp(unique_cycles[i], cycle, (path_len + 1) * sizeof(unsigned int)) == 0) {
+                        is_unique = false;
+                        break;
+                    }
+                }
 
-	// reset node visit for next cycle
-	visited[node_index - 1] = false;
+                if (is_unique) {
+			    	// Normalize the cycle to a canonical form
+			    	normalize_cycle(cycle, path_len + 1);
+			    	unique_cycles[*cycle_count] = cycle;
+
+			    	if (is_unique) {
+			    	    (*cycle_count)++;
+			    	} else {
+			    	    free(cycle);
+			    	}
+				}
+
+            }
+        }
+        else if (path_len + 1 < node_count) {
+            depth_first_search_cycle(visited, path, path_len + 1, neighbor_index, cycle_start_node_index, cycle_count, node_count, unique_cycles);
+        }
+    }
+
+    visited[node_index - 1] = false;
 }
 
 /**
@@ -230,27 +267,29 @@ unsigned int graph_get_cycle_count() {
 	timer_start();
 
 	unsigned int node_count = graph_get_node_count();
-	unsigned int cycles_count = 0;
+	bool *visited = mem_alloc(node_count, sizeof(bool));
+	memset(visited, 0, node_count * sizeof(bool));
 
-	for (unsigned int cycle_len = node_count; cycle_len > 2; cycle_len--) {
+	unsigned int *path = mem_alloc(node_count, sizeof(unsigned int));
+	unsigned int cycle_count = 0;
 
-		bool *visited = mem_alloc(node_count, sizeof(bool));
-		memset(visited, 0, node_count * sizeof(bool));
+	unsigned int **unique_cycles = mem_alloc(node_count, sizeof(unsigned int*));
 
-		unsigned int cycles_count_for_len = 0;
-		for (unsigned int i = 1; i <= node_count - cycle_len + 1; i++) {
-			depth_first_search_cycle(visited, cycle_len - 1, i, i, &cycles_count_for_len);
-			visited[i - 1] = true;
-		}
-		//cycles_count_for_len is doubled because of undirected graph
-		cycles_count += cycles_count_for_len / 2;
-
-		free(visited);
+	for (unsigned int i = 0; i < node_count; i++) {
+		unique_cycles[i] = mem_alloc(node_count, sizeof(unsigned int));
 	}
+
+	for (unsigned int i = 1; i <= node_count; i++) {
+		depth_first_search_cycle(visited, path, 0, i, i, &cycle_count, node_count, unique_cycles);
+	}
+
+	free(unique_cycles);
+	free(path);
+	free(visited);
 
 	timer_stop();
 
-	return cycles_count;
+	return cycle_count;
 }
 
 /**
