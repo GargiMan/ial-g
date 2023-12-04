@@ -267,19 +267,19 @@ unsigned int graph_get_cycle_count() {
 	timer_start();
 
 	unsigned int node_count = graph_get_node_count();
-	unsigned int cycle_count = 0;
-
 	bool* visited = mem_alloc(node_count, sizeof(bool));
+
 	memset(visited, 0, node_count * sizeof(bool));
 
 	unsigned int* path = mem_alloc(node_count, sizeof(unsigned int));
 
-	unsigned int** unique_cycles = mem_alloc(node_count, sizeof(unsigned int*));
+	unsigned int** unique_cycles = mem_alloc(node_count * node_count, sizeof(unsigned int*));
 
 	for (unsigned int i = 0; i < node_count; i++) {
 	    unique_cycles[i] = mem_alloc(node_count, sizeof(unsigned int));
-	    memset(unique_cycles[i], 0, node_count * sizeof(unsigned int));  // Initialize to 0
 	}
+
+	unsigned int cycle_count = 0;
 
 	for (unsigned int i = 1; i <= node_count; i++) {
 	    depth_first_search_cycle(visited, path, 0, i, i, &cycle_count, node_count, unique_cycles);
@@ -298,9 +298,10 @@ unsigned int graph_get_cycle_count() {
 	    printf("\n");
 	}
 
+	free(*unique_cycles);
+
 	free(visited);
 	free(path);
-	free(unique_cycles);
 
 	timer_stop();
 
