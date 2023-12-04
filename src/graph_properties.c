@@ -109,8 +109,10 @@ void depth_first_search_cycle(bool* visited, unsigned int* path, unsigned int pa
         if (visited[neighbor_index - 1]) {
             if (neighbor_index == cycle_start_node_index && path_len >= 2) {
                 unsigned int* cycle = mem_alloc(path_len + 1, sizeof(unsigned int));
+				normalize_cycle(cycle, path_len + 1);
                 memcpy(cycle, path, (path_len + 1) * sizeof(unsigned int));
                 qsort(cycle, path_len + 1, sizeof(unsigned int), compare);
+				
 
                 bool is_unique = true;
 
@@ -122,8 +124,6 @@ void depth_first_search_cycle(bool* visited, unsigned int* path, unsigned int pa
                 }
 
                 if (is_unique) {
-			    	// Normalize the cycle to a canonical form
-			    	normalize_cycle(cycle, path_len + 1);
 			    	unique_cycles[*cycle_count] = cycle;
 
 			    	if (is_unique) {
@@ -267,25 +267,40 @@ unsigned int graph_get_cycle_count() {
 	timer_start();
 
 	unsigned int node_count = graph_get_node_count();
-	bool *visited = mem_alloc(node_count, sizeof(bool));
-	memset(visited, 0, node_count * sizeof(bool));
-
-	unsigned int *path = mem_alloc(node_count, sizeof(unsigned int));
 	unsigned int cycle_count = 0;
 
-	unsigned int **unique_cycles = mem_alloc(node_count, sizeof(unsigned int*));
+	bool* visited = mem_alloc(node_count, sizeof(bool));
+	memset(visited, 0, node_count * sizeof(bool));
+
+	unsigned int* path = mem_alloc(node_count, sizeof(unsigned int));
+
+	unsigned int** unique_cycles = mem_alloc(node_count, sizeof(unsigned int*));
 
 	for (unsigned int i = 0; i < node_count; i++) {
-		unique_cycles[i] = mem_alloc(node_count, sizeof(unsigned int));
+	    unique_cycles[i] = mem_alloc(node_count, sizeof(unsigned int));
+	    memset(unique_cycles[i], 0, node_count * sizeof(unsigned int));  // Initialize to 0
 	}
 
 	for (unsigned int i = 1; i <= node_count; i++) {
-		depth_first_search_cycle(visited, path, 0, i, i, &cycle_count, node_count, unique_cycles);
+	    depth_first_search_cycle(visited, path, 0, i, i, &cycle_count, node_count, unique_cycles);
+	}
+	
+	printf("Unique cycles:\n");
+	for (unsigned int i = 0; i < cycle_count; i++) {
+	    printf("Cycle %u: ", i + 1);
+	    for (unsigned int j = 0; j < node_count; j++) {
+	        if (unique_cycles[i][j] != 0) {
+	            printf("%u ", unique_cycles[i][j]);
+	        } else {
+	            break;
+	        }
+	    }
+	    printf("\n");
 	}
 
-	free(unique_cycles);
-	free(path);
 	free(visited);
+	free(path);
+	free(unique_cycles);
 
 	timer_stop();
 
