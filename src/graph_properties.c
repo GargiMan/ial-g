@@ -296,21 +296,7 @@ unsigned int graph_get_cycle_count() {
 	for (unsigned int i = 0; i < node_count; i++) {
     depth_first_search_cycle(visited, path, 0, i + 1, i + 1, &cycle_count, node_count, unique_cycles);
 	}
-
-	printf("Unique cycles:\n");
-	for (unsigned int i = 0; i < cycle_count; i++) {
-	    printf("Cycle %u: ", i + 1);
-	    for (unsigned int j = 0; j < node_count; j++) {
-	        if (unique_cycles[i][j] != 0) {
-	            printf("%u ", unique_cycles[i][j]);
-	        } else {
-	            break;
-	        }
-	    }
-	    printf("\n");
-	}
 	
-
 	free(*unique_cycles);
 
 	free(visited);
