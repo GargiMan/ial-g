@@ -4,7 +4,7 @@
 PROG_NAME = graph_properties
 CC = gcc
 # -g for debug , -O2 for optimization (0 - disabled, 1 - less, 2 - more)
-CCFLAGS := -g -O0 -Wall -Wextra -std=c17 -pedantic
+CCFLAGS := -O0 -Wall -Wextra -std=c17 -pedantic
 SRC_FILES := src/main.c src/error.c src/parser.c src/graph.c src/graph_properties.c
 TEST_FILES := $(wildcard testData/*)
 
@@ -25,4 +25,4 @@ clean:
 	rm -rf $(PROG_NAME)*
 
 zip: clean
-	zip -r $(PROG_NAME).zip include src testData Makefile dokumentace.pdf testScripts README.md
+	zip -r $(PROG_NAME).zip include src testData testScripts Makefile dokumentace.pdf
