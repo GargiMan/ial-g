@@ -25,4 +25,4 @@ clean:
 	rm -rf $(PROG_NAME)*
 
 zip: clean
-	zip -r $(PROG_NAME).zip include src testData Makefile dokumentace.pdf
+	zip -r $(PROG_NAME).zip include src testData Makefile dokumentace.pdf testScripts README.md
