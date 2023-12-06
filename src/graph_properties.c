@@ -1,12 +1,12 @@
 /**
  * @file graph_properties.c
- * @authors Marek Gergel (xgerge01), Jindřich Šíma (xsimaj04), Tomáš Fišer (xfiser16), Dmytro Sadovskyi (xsadov06)
+ * @authors Marek Gergel (xgerge01), Lukáš Kysela (xkysel16), Daniel jacobs (xjacob00), Jakub Pekárek (xpekar19)
  * @brief definition of functions and variables for graph analysis and their subsequent execution,
  * time complexity description (|V| = number of vertices (nodes), |E| = number of edges)
- * @version 0.1
- * @date 2022-10-26
+ * @version 0.2
+ * @date 2023-10-26
  *
- * @copyright Copyright (c) 2022
+ * @copyright Copyright (c) 2023
  *
  */
 
@@ -43,6 +43,13 @@ int compare(const void * a, const void * b) {
 	return (*(unsigned int*)a - *(unsigned int*)b);
 }
 
+/**
+ * @brief normalize cycle
+ *
+ * Time complexity: O(|V|)
+ * @param cycle array of cycle
+ * @param path_len length of path
+ */
 void normalize_cycle(unsigned int* cycle, unsigned int path_len) {
     unsigned int min_index = 0;
 
@@ -91,12 +98,17 @@ void depth_first_search(node_t *node, bool *visited)
 }
 
 /**
- * @brief Get all cycles in graph with depth first search
- * @param visited visited nodes bit array
- * @param cycle_len_remaining cycle length remaining to search
- * @param node_index current node index
- * @param cycle_start_node_index cycle start node index
- * @param cycle_count pointer to count of all cycles of specific length
+ * @brief deep-first search function to determine if the graph is continuous
+ *
+ * Time complexity: O(|V|+|E|)
+ * @param visited bit array of visited nodes
+ * @param path array of visited nodes
+ * @param path_len length of path
+ * @param node_index index of node
+ * @param cycle_start_node_index index of cycle start node
+ * @param cycle_count count of cycles
+ * @param node_count count of nodes
+ * @param unique_cycles array of unique cycles
  */
 void depth_first_search_cycle(bool* visited, unsigned int* path, unsigned int path_len, unsigned int node_index, unsigned int cycle_start_node_index, unsigned int* cycle_count, unsigned int node_count, unsigned int** unique_cycles) {
     visited[node_index - 1] = true;
@@ -108,14 +120,14 @@ void depth_first_search_cycle(bool* visited, unsigned int* path, unsigned int pa
 
         if (visited[neighbor_index - 1]) {
             if (neighbor_index == cycle_start_node_index && path_len >= 2) {
-                unsigned int* cycle = mem_alloc(path_len + 1, sizeof(unsigned int));
+                unsigned int* cycle = mem_alloc(path_len +2, sizeof(unsigned int));
 				normalize_cycle(cycle, path_len + 1);
-                memcpy(cycle, path, (path_len + 1) * sizeof(unsigned int));
+				memcpy(cycle, path, (path_len + 1) * sizeof(unsigned int));
                 qsort(cycle, path_len + 1, sizeof(unsigned int), compare);
 				
 
                 bool is_unique = true;
-
+				
                 for (unsigned int i = 0; i < *cycle_count; i++) {
                     if (memcmp(unique_cycles[i], cycle, (path_len + 1) * sizeof(unsigned int)) == 0) {
                         is_unique = false;
@@ -132,7 +144,6 @@ void depth_first_search_cycle(bool* visited, unsigned int* path, unsigned int pa
 			    	    free(cycle);
 			    	}
 				}
-
             }
         }
         else if (path_len + 1 < node_count) {
@@ -267,24 +278,25 @@ unsigned int graph_get_cycle_count() {
 	timer_start();
 
 	unsigned int node_count = graph_get_node_count();
+
 	bool* visited = mem_alloc(node_count, sizeof(bool));
 
 	memset(visited, 0, node_count * sizeof(bool));
 
 	unsigned int* path = mem_alloc(node_count, sizeof(unsigned int));
 
-	unsigned int** unique_cycles = mem_alloc(node_count * node_count, sizeof(unsigned int*));
+	unsigned int** unique_cycles = mem_alloc(node_count * 1000, sizeof(unsigned int*));
 
 	for (unsigned int i = 0; i < node_count; i++) {
-	    unique_cycles[i] = mem_alloc(node_count, sizeof(unsigned int));
+	    unique_cycles[i] = mem_alloc(node_count * 1000, sizeof(unsigned int));
 	}
 
 	unsigned int cycle_count = 0;
 
-	for (unsigned int i = 1; i <= node_count; i++) {
-	    depth_first_search_cycle(visited, path, 0, i, i, &cycle_count, node_count, unique_cycles);
+	for (unsigned int i = 0; i < node_count; i++) {
+    depth_first_search_cycle(visited, path, 0, i + 1, i + 1, &cycle_count, node_count, unique_cycles);
 	}
-	
+
 	printf("Unique cycles:\n");
 	for (unsigned int i = 0; i < cycle_count; i++) {
 	    printf("Cycle %u: ", i + 1);
@@ -297,6 +309,7 @@ unsigned int graph_get_cycle_count() {
 	    }
 	    printf("\n");
 	}
+	
 
 	free(*unique_cycles);
 
